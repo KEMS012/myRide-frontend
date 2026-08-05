@@ -602,7 +602,7 @@ function RiderDashboard() {
                         <span>
                           <em
                             className={`status ${
-                              t.status === "Completed" ? "done" : "cancel"
+                              t.status === "Completed" ? "done" : t.status === "accepted" ? "warn" : t.status === "rejected" || t.status === "cancelled" ? "cancel" : "pending"
                             }`}
                           >
                             {t.status}
@@ -810,15 +810,15 @@ function RiderDashboard() {
                     <span>{t.route || `${t.from || ""} → ${t.to || ""}`}</span>
                     <span>{t.createdAt?.toDate ? t.createdAt.toDate().toLocaleDateString() : "—"}</span>
                     <span className="fare">{t.rideFare || t.fare || "—"}</span>
-                    <span>
-                      <em
-                        className={`status ${
-                          t.status === "Completed" ? "done" : "cancel"
-                        }`}
-                      >
-                        {t.status}
-                      </em>
-                    </span>
+                      <span>
+                        <em
+                          className={`status ${
+                            t.status === "Completed" ? "done" : t.status === "accepted" ? "warn" : t.status === "rejected" || t.status === "cancelled" ? "cancel" : "pending"
+                          }`}
+                        >
+                          {t.status}
+                        </em>
+                      </span>
                   </div>
                 ))}
               </div>

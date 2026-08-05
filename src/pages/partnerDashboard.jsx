@@ -69,7 +69,7 @@ function PartnerDashboard() {
   const [confirm, setConfirm] = useState(null);
   const [selected, setSelected] = useState(null);
   const [avatar, setAvatar] = useState(
-    profile?.avatar || "https://randomuser.me/api/portraits/women/68.jpg"
+    profile?.avatar || ""
   );
   const [profileForm, setProfileForm] = useState({
     name: profile?.name || user?.displayName || "",

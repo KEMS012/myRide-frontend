@@ -456,7 +456,7 @@ function DriverDashboard() {
                         <span>{t.createdAt?.toDate ? t.createdAt.toDate().toLocaleDateString() : "—"}</span>
                     <span className="fare">{t.fare}</span>
                     <span>
-                      <em className={`status ${t.status === "Completed" ? "done" : t.status === "accepted" ? "warn" : "cancel"}`}>
+                      <em className={`status ${t.status === "Completed" ? "done" : t.status === "accepted" ? "warn" : t.status === "rejected" ? "cancel" : "pending"}`}>
                         {t.status}
                       </em>
                       {t.status === "accepted" && (
