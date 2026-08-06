@@ -305,3 +305,24 @@ export async function seedInitialData() {
     await setDoc(ref, { id: ref.id, ...p, createdAt: serverTimestamp() });
   }
 }
+
+export function onNotificationsSnapshot(uid, listener) {
+  const q = query(col("notifications"), where("recipientId", "==", uid), orderBy("createdAt", "desc"));
+  const unsub = onSnapshot(q, (snap) => {
+    listener(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
+  }, (err) => {
+    console.error("onNotificationsSnapshot error:", err);
+    listener([]);
+  });
+  return unsub;
+}
+
+export async function createNotification(data) {
+  const ref = doc(col("notifications"));
+  await setDoc(ref, { ...data, createdAt: serverTimestamp(), read: false });
+  return ref.id;
+}
+
+export async function markNotificationRead(notificationId) {
+  await updateDoc(docRef("notifications", notificationId), { read: true });
+}

@@ -36,6 +36,9 @@ import {
   onRidesForDriverSnapshot,
   onAvailableRidesSnapshot,
   onUsersSnapshot,
+  onNotificationsSnapshot,
+  createNotification,
+  markNotificationRead,
 } from "../services/firestore";
 
 const navItems = [
@@ -64,6 +67,8 @@ function DriverDashboard() {
   const [usersWithLocation, setUsersWithLocation] = useState([]);
   const [toast, setToast] = useState("");
   const [confirm, setConfirm] = useState(null);
+  const [notifications, setNotifications] = useState([]);
+  const [unreadNotifCount, setUnreadNotifCount] = useState(0);
   const [avatar, setAvatar] = useState(
     profile?.avatar || "https://randomuser.me/api/portraits/men/32.jpg"
   );
@@ -73,9 +78,10 @@ function DriverDashboard() {
     email: profile?.email || user?.email || "",
     vehicle: profile?.vehicle || "",
     license: profile?.license || "",
+    plateNumber: profile?.plateNumber || "",
   }));
   const fileInputRef = useRef(null);
-  const [notifications] = useState([
+  const [sampleNotifications] = useState([
     { id: 1, text: "New ride request from Esther A. nearby.", time: "2m ago", unread: true },
     { id: 2, text: "You received a 5-star rating from Adebayo O.", time: "45m ago", unread: true },
   ]);
@@ -92,11 +98,16 @@ function DriverDashboard() {
     const unsubUsers = onUsersSnapshot((items) => {
       setUsersWithLocation(items.filter((u) => u.locationSharingEnabled && u.area));
     });
+    const unsubNotifs = onNotificationsSnapshot(user.uid, (items) => {
+      setNotifications(items);
+      setUnreadNotifCount(items.filter((n) => !n.read).length);
+    });
     getActiveSchedules().then(setScheduled);
     return () => {
       unsubMyTrips?.();
       unsubRequests?.();
       unsubUsers?.();
+      unsubNotifs?.();
     };
   }, [user]);
 
@@ -108,6 +119,7 @@ function DriverDashboard() {
       email: profile?.email || user?.email || prev.email || "",
       vehicle: profile?.vehicle || prev.vehicle || "",
       license: profile?.license || prev.license || "",
+      plateNumber: profile?.plateNumber || prev.plateNumber || "",
     }));
     setAvatar(profile?.avatar || user?.photoURL || "https://randomuser.me/api/portraits/men/32.jpg");
   }, [profile, user]);
@@ -187,7 +199,7 @@ function DriverDashboard() {
     });
   }, [search, tripFilter, myTrips]);
 
-  const unreadCount = notifications.filter((n) => n.unread).length;
+  const unreadCount = notifications.filter((n) => !n.read).length;
 
   return (
     <div className="dashboard">
@@ -258,10 +270,16 @@ function DriverDashboard() {
                       Close
                     </button>
                   </div>
-                  {notifications.map((n) => (
+                  {notifications.length === 0 && sampleNotifications.map((n) => (
                     <div key={n.id} className={`notif-item ${n.unread ? "unread" : ""}`}>
                       <p>{n.text}</p>
                       <small>{n.time}</small>
+                    </div>
+                  ))}
+                  {notifications.map((n) => (
+                    <div key={n.id} className={`notif-item ${n.read ? "" : "unread"}`}>
+                      <p><strong>{n.title}</strong> — {n.message}</p>
+                      <small>{n.createdAt?.toDate ? n.createdAt.toDate().toLocaleString() : n.createdAt || ""}</small>
                     </div>
                   ))}
                 </div>
@@ -620,6 +638,14 @@ function DriverDashboard() {
                     type="text"
                     value={profileForm.license}
                     onChange={(e) => setProfileForm({ ...profileForm, license: e.target.value })}
+                  />
+
+                  <label>Vehicle Plate Number</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. ABC-1234"
+                    value={profileForm.plateNumber}
+                    onChange={(e) => setProfileForm({ ...profileForm, plateNumber: e.target.value })}
                   />
 
                   <button className="qb-btn full" type="submit">

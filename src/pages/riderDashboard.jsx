@@ -28,8 +28,12 @@ import {
   FaPen,
   FaCamera,
   FaSatelliteDish,
+  FaMoon,
+  FaSun,
   FaPhone,
   FaComment,
+  FaCar,
+  FaMotorcycle as FaBike,
 } from "react-icons/fa6";
 import {
   createRide,
@@ -39,10 +43,15 @@ import {
   createFixedRide,
   getDrivers,
   getReward,
+  getUser,
   deleteDoc,
   docRef,
   updateDoc,
+  acceptRide,
+  completeRide,
   onRidesForUserSnapshot,
+  onNotificationsSnapshot,
+  createNotification,
 } from "../services/firestore";
 import { generateGoogleCalendarUrl } from "../utils/calendar";
 
@@ -51,7 +60,8 @@ const navItems = [
   { id: "book", label: "Book a Ride", icon: <FaCarSide /> },
   { id: "trips", label: "My Trips", icon: <FaLocationDot /> },
   { id: "scheduled", label: "Scheduled", icon: <FaCalendarDays /> },
-  { id: "fixed", label: "Fixed Rider", icon: <FaMotorcycle /> },
+  { id: "fixed", label: "Fixed Passenger", icon: <FaMotorcycle /> },
+  { id: "drivers", label: "Available Drivers", icon: <FaCar /> },
   { id: "emergency", label: "Emergency", icon: <FaPhone /> },
   { id: "support", label: "Support", icon: <FaComment /> },
   { id: "rewards", label: "Rewards", icon: <FaTrophy /> },
@@ -76,6 +86,8 @@ function RiderDashboard() {
   const [dataError, setDataError] = useState("");
   const [toast, setToast] = useState("");
   const [confirm, setConfirm] = useState(null);
+  const [notifications, setNotifications] = useState([]);
+  const [unreadNotifCount, setUnreadNotifCount] = useState(0);
   const [emergencyContacts, setEmergencyContacts] = useState([
     { id: "company", name: "MyRyde Support", phone: "+234 808 591 9225" },
   ]);
@@ -96,34 +108,41 @@ function RiderDashboard() {
   }));
   const [driverSearch, setDriverSearch] = useState(profile?.town || "");
   const fileInputRef = useRef(null);
-  const [notifications] = useState([
+  const [sampleNotifications] = useState([
     { id: 1, text: "Your driver Musa A. is 2 minutes away.", time: "5m ago", unread: true },
     { id: 2, text: "Ride completed. Rate your trip!", time: "1h ago", unread: true },
     { id: 3, text: "You earned 40 reward points", time: "3h ago", unread: false },
   ]);
 
-   useEffect(() => {
-     if (!user) return;
-     let active = true;
-     async function load() {
-       try {
-         setDataError("");
-    const unsubRides = onRidesForUserSnapshot(user.uid, (items) => {
-      if (active) setAllTrips(items);
-    });
-    const [schedules, reward, fixed] = await Promise.all([
-      getSchedulesForUser(user.uid),
-      getReward(user.uid),
-      getFixedRidesForUser(user.uid),
-    ]);
-    if (active) {
-      setUpcoming(schedules);
-      setRewards(reward);
-      setFixedList(fixed);
-    }
-    return () => {
-      unsubRides?.();
-    };
+    useEffect(() => {
+      if (!user) return;
+      let active = true;
+      async function load() {
+        try {
+          setDataError("");
+     const unsubRides = onRidesForUserSnapshot(user.uid, (items) => {
+       if (active) setAllTrips(items);
+     });
+     const unsubNotifs = onNotificationsSnapshot(user.uid, (items) => {
+       if (active) {
+         setNotifications(items);
+         setUnreadNotifCount(items.filter((n) => !n.read).length);
+       }
+     });
+     const [schedules, reward, fixed] = await Promise.all([
+       getSchedulesForUser(user.uid),
+       getReward(user.uid),
+       getFixedRidesForUser(user.uid),
+     ]);
+     if (active) {
+       setUpcoming(schedules);
+       setRewards(reward);
+       setFixedList(fixed);
+     }
+     return () => {
+       unsubRides?.();
+       unsubNotifs?.();
+     };
         } catch (err) {
           console.error("Rider dashboard load error:", err);
           const msg = err?.message || "Failed to load dashboard data.";
@@ -299,7 +318,7 @@ function RiderDashboard() {
     }
     try {
       if (when === "now") {
-        await createRide({
+        const ride = await createRide({
           userId: user.uid,
           from: pickup,
           to: destination,
@@ -307,7 +326,30 @@ function RiderDashboard() {
           riderName: profile?.name,
           rideFare: "₦1,200",
         });
-        showToast(`Ride requested from ${pickup} to ${destination}. Waiting for a driver response.`);
+        const drivers = await getDrivers();
+        if (drivers.length > 0) {
+          const nearest = drivers[0];
+          await acceptRide(ride.id, nearest.id, nearest.name);
+          await createNotification({
+            recipientId: nearest.id,
+            recipientRole: "driver",
+            bookingId: ride.id,
+            title: "New Ride Booking",
+            message: `${profile?.name || "A passenger"} has booked a ride from ${pickup} to ${destination}.`,
+            type: "new_booking",
+          });
+          await createNotification({
+            recipientId: "admin",
+            recipientRole: "admin",
+            bookingId: ride.id,
+            title: "New Booking Received",
+            message: `${profile?.name || "A passenger"} booked a ride from ${pickup} to ${destination}.`,
+            type: "new_booking",
+          });
+          showToast(`Ride requested from ${pickup} to ${destination}. Driver ${nearest.name} assigned.`);
+        } else {
+          showToast(`Ride requested from ${pickup} to ${destination}. Waiting for a driver response.`);
+        }
       } else {
         const dt = document.querySelector('.dt-input')?.value || new Date().toISOString();
         await createSchedule({ userId: user.uid, from: pickup, to: destination, datetime: dt, type: rideType });
@@ -385,7 +427,7 @@ function RiderDashboard() {
       plan: "Weekly",
       schedule: "Mon-Fri",
     });
-    showToast("Fixed rider subscription created.");
+    showToast("Fixed passenger subscription created.");
     getFixedRidesForUser(user.uid).then(setFixedList);
   };
 
@@ -406,7 +448,7 @@ function RiderDashboard() {
     );
   };
 
-  const unreadCount = notifications.filter((n) => n.unread).length;
+  const unreadCount = notifications.filter((n) => !n.read).length;
   const filteredDrivers = useMemo(() => {
     const term = driverSearch.trim().toLowerCase();
     if (!term) return availableDrivers;
@@ -483,13 +525,16 @@ function RiderDashboard() {
                       Close
                     </button>
                   </div>
-                  {notifications.map((n) => (
-                    <div
-                      key={n.id}
-                      className={`notif-item ${n.unread ? "unread" : ""}`}
-                    >
+                  {notifications.length === 0 && sampleNotifications.map((n) => (
+                    <div key={n.id} className={`notif-item ${n.unread ? "unread" : ""}`}>
                       <p>{n.text}</p>
                       <small>{n.time}</small>
+                    </div>
+                  ))}
+                  {notifications.map((n) => (
+                    <div key={n.id} className={`notif-item ${n.read ? "" : "unread"}`}>
+                      <p><strong>{n.title}</strong> — {n.message}</p>
+                      <small>{n.createdAt?.toDate ? n.createdAt.toDate().toLocaleString() : n.createdAt || ""}</small>
                     </div>
                   ))}
                 </div>
@@ -503,7 +548,7 @@ function RiderDashboard() {
               />
               <div className="user-info">
                 <strong>{profile?.name?.split(" ")[0] || "User"}</strong>
-                <small>{profile?.role === "driver" ? "Driver" : profile?.role === "partners" ? "Partner" : profile?.role === "admin" ? "Admin" : "Rider"}</small>
+                  <small>{profile?.role === "driver" ? "Driver" : profile?.role === "partners" ? "Partner" : profile?.role === "admin" ? "Admin" : "Passenger"}</small>
               </div>
             </div>
           </div>
@@ -1094,10 +1139,77 @@ function RiderDashboard() {
                   </Link>
                 </div>
               </div>
-            </section>
-          )}
+             </section>
+           )}
 
-          {active === "emergency" && (
+           {/* ================= AVAILABLE DRIVERS ================= */}
+           {active === "drivers" && (
+             <section className="view-narrow">
+               <div className="panel">
+                 <div className="panel-head">
+                   <h3>Available Drivers</h3>
+                   <span className="badge muted">
+                     <FaCircleCheck /> {availableDrivers.length} online
+                   </span>
+                 </div>
+                 <div className="form-field" style={{ marginBottom: "1rem" }}>
+                   <FaMagnifyingGlass />
+                   <input
+                     type="text"
+                     placeholder="Search by area or town"
+                     value={driverSearch}
+                     onChange={(e) => setDriverSearch(e.target.value)}
+                   />
+                 </div>
+                 {filteredDrivers.length === 0 && (
+                   <p className="empty-note">No drivers are currently available in your area.</p>
+                 )}
+                 <div className="driver-grid">
+                   {filteredDrivers.map((driver) => (
+                     <div className="driver-card" key={driver.id}>
+                       <img
+                         src={driver.avatar || "https://randomuser.me/api/portraits/men/32.jpg"}
+                         alt={driver.name}
+                       />
+                       <div className="driver-card-info">
+                         <strong>{driver.name}</strong>
+                         <small>
+                           <FaLocationDot /> {driver.area || driver.town || "Ogbomoso"}
+                         </small>
+                         <small>
+                           <FaCar /> {driver.vehicle || "Car"}
+                         </small>
+                         <span className={`mini-tag ${driver.status === "active" ? "live" : "draft"}`}>
+                           {driver.status === "active" ? "Available" : "Busy"}
+                         </span>
+                       </div>
+                       <div className="driver-card-actions">
+                         <a
+                           className="qb-btn small"
+                           href={`tel:${(driver.phone || "").replace(/\s/g, "")}`}
+                         >
+                           <FaPhone /> Call
+                         </a>
+                         <button
+                           className="ghost-btn"
+                           onClick={() => {
+                             setPickup("");
+                             setDestination("");
+                             goTo("book");
+                             showToast(`Driver ${driver.name} selected for your ride.`);
+                           }}
+                         >
+                           Book
+                         </button>
+                       </div>
+                     </div>
+                   ))}
+                 </div>
+               </div>
+             </section>
+           )}
+
+           {active === "emergency" && (
             <section className="view-narrow">
               <div className="panel">
                 <div className="panel-head">

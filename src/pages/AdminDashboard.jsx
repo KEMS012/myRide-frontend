@@ -41,6 +41,9 @@ import {
   onRidesSnapshot,
   onPartnersSnapshot,
   updateRideStatus,
+  onNotificationsSnapshot,
+  createNotification,
+  markNotificationRead,
 } from "../services/firestore";
 
 const normalizeStatus = (status) => {
@@ -73,6 +76,8 @@ function AdminDashboard() {
   const [rides, setRides] = useState([]);
   const [toast, setToast] = useState("");
   const [confirm, setConfirm] = useState(null);
+  const [notifications, setNotifications] = useState([]);
+  const [unreadNotifCount, setUnreadNotifCount] = useState(0);
   const [editTarget, setEditTarget] = useState(null);
   const [viewDriver, setViewDriver] = useState(null);
   const [viewUser, setViewUser] = useState(null);
@@ -116,7 +121,7 @@ function AdminDashboard() {
   };
 
   useEffect(() => {
-    let unsubUsers, unsubRides, unsubPartners;
+    let unsubUsers, unsubRides, unsubPartners, unsubNotifs;
 
     async function setup() {
       try {
@@ -157,6 +162,11 @@ function AdminDashboard() {
           setPartners(items);
         });
 
+        unsubNotifs = onNotificationsSnapshot("admin", (items) => {
+          setNotifications(items);
+          setUnreadNotifCount(items.filter((n) => !n.read).length);
+        });
+
       } catch (err) {
         console.error("Admin real-time setup error:", err);
         setLoadError(err?.message || "Failed to load admin data.");
@@ -172,6 +182,7 @@ function AdminDashboard() {
       unsubUsers?.();
       unsubRides?.();
       unsubPartners?.();
+      unsubNotifs?.();
     };
   }, []);
 
@@ -300,7 +311,7 @@ function AdminDashboard() {
     setEditTarget({ ...record, __kind: kind });
   };
 
-  const notifications = [
+  const sampleNotifications = [
     { id: 1, text: "2 driver verifications awaiting review.", time: "10m ago", unread: true },
     { id: 2, text: "Grace Thompson was suspended.", time: "1h ago", unread: true },
     { id: 3, text: "Daily revenue hit ₦284k.", time: "3h ago", unread: false },
@@ -328,7 +339,7 @@ function AdminDashboard() {
     };
   }, []);
 
-  const unreadCount = notifications.filter((n) => n.unread).length;
+  const unreadCount = notifications.filter((n) => !n.read).length;
 
   const safeText = (value) => String(value || "").toLowerCase();
 
@@ -480,10 +491,16 @@ function AdminDashboard() {
                       Close
                     </button>
                   </div>
-                  {notifications.map((n) => (
+                  {notifications.length === 0 && sampleNotifications.map((n) => (
                     <div key={n.id} className={`notif-item ${n.unread ? "unread" : ""}`}>
                       <p>{n.text}</p>
                       <small>{n.time}</small>
+                    </div>
+                  ))}
+                  {notifications.map((n) => (
+                    <div key={n.id} className={`notif-item ${n.read ? "" : "unread"}`}>
+                      <p><strong>{n.title}</strong> — {n.message}</p>
+                      <small>{n.createdAt?.toDate ? n.createdAt.toDate().toLocaleString() : n.createdAt || ""}</small>
                     </div>
                   ))}
                 </div>
