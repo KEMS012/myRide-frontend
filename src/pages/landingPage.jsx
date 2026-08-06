@@ -570,37 +570,39 @@ function LandingPage() {
 
 <section className="partner-section">
 
-  <div className="section-title">
-    <span>PARTNERSHIPS</span>
-    <h2>Serving Our Community</h2>
-  </div>
-
-  <div className="partner-grid">
-
-    <div className="partner-card">
-      <h1><FaSchool /></h1>
-      <h3>Schools</h3>
-      <p>Safe transportation for students and staff.</p>
+  <div className="container">
+    <div className="section-title">
+      <span>PARTNERSHIPS</span>
+      <h2>Serving Our Community</h2>
     </div>
 
-    <div className="partner-card">
-      <h1><FaChurch /></h1>
-      <h3>Churches</h3>
-      <p>Reliable rides for church programmes and events.</p>
-    </div>
+    <div className="partner-grid">
 
-    <div className="partner-card">
-      <h1><FaBuilding /></h1>
-      <h3>Businesses</h3>
-      <p>Corporate transport for employees and guests.</p>
-    </div>
+      <div className="partner-card">
+        <h1><FaSchool /></h1>
+        <h3>Schools</h3>
+        <p>Safe transportation for students and staff.</p>
+      </div>
 
-    <div className="partner-card">
-      <h1><FaHospital /></h1>
-      <h3>Hospitals</h3>
-      <p>Quick and comfortable trips to health facilities.</p>
-    </div>
+      <div className="partner-card">
+        <h1><FaChurch /></h1>
+        <h3>Churches</h3>
+        <p>Reliable rides for church programmes and events.</p>
+      </div>
 
+      <div className="partner-card">
+        <h1><FaBuilding /></h1>
+        <h3>Businesses</h3>
+        <p>Corporate transport for employees and guests.</p>
+      </div>
+
+      <div className="partner-card">
+        <h1><FaHospital /></h1>
+        <h3>Hospitals</h3>
+        <p>Quick and comfortable trips to health facilities.</p>
+      </div>
+
+    </div>
   </div>
 
 </section>

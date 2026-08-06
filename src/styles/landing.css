@@ -68,6 +68,11 @@ section{
     padding:100px 8%;
 }
 
+.container{
+    max-width:1200px;
+    margin:0 auto;
+}
+
 .section-title{
     text-align:center;
     margin-bottom:70px;
