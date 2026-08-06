@@ -15,10 +15,10 @@ function Terms() {
             goods or passengers itself.
           </p>
 
-          <h3>2. Rider &amp; Driver Responsibilities</h3>
+          <h3>2. Passenger &amp; Driver Responsibilities</h3>
           <p>
             All drivers must complete NIN and BVN verification before approval.
-            Riders must provide accurate pickup and destination information.
+            Passengers must provide accurate pickup and destination information.
           </p>
 
           <h3>3. Safety</h3>

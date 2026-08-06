@@ -86,9 +86,9 @@ function DriverDashboard() {
     { id: 2, text: "You received a 5-star rating from Adebayo O.", time: "45m ago", unread: true },
   ]);
   const [reviews] = useState([
-    { id: 1, rider: "Adebayo O.", stars: 5, text: "Very smooth ride and polite driver.", date: "Jul 10" },
-    { id: 2, rider: "Esther A.", stars: 5, text: "On time and safe. Highly recommend!", date: "Jul 09" },
-    { id: 3, rider: "Grace T.", stars: 4, text: "Good trip, a little late but okay.", date: "Jul 08" },
+    { id: 1, passenger: "Adebayo O.", stars: 5, text: "Very smooth ride and polite driver.", date: "Jul 10" },
+    { id: 2, passenger: "Esther A.", stars: 5, text: "On time and safe. Highly recommend!", date: "Jul 09" },
+    { id: 3, passenger: "Grace T.", stars: 4, text: "Good trip, a little late but okay.", date: "Jul 08" },
    ]);
 
   useEffect(() => {
@@ -455,7 +455,7 @@ function DriverDashboard() {
               <div className="trips-table driver-trips">
                 <div className="trips-table-head">
                   <span>Trip ID</span>
-                  <span>Rider</span>
+                  <span>Passenger</span>
                   <span>Route</span>
                   <span>Date</span>
                   <span>Fare</span>

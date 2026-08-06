@@ -556,7 +556,7 @@ function AdminDashboard() {
                   </div>
                   <div className="trips-table">
                     <div className="trips-table-head">
-                      <span>Ref</span><span>Rider</span><span>Driver</span><span>Fare</span><span>Status</span>
+                      <span>Ref</span><span>Passenger</span><span>Driver</span><span>Fare</span><span>Status</span>
                     </div>
                     {rides.slice(0, 4).map((t) => (
                       <div className="trips-table-row" key={t.id}>
@@ -838,7 +838,7 @@ function AdminDashboard() {
                 value={editTarget.role || "rider"}
                 onChange={(e) => setEditTarget({ ...editTarget, role: e.target.value })}
               >
-                <option value="rider">Rider</option>
+                <option value="rider">Passenger</option>
                 <option value="driver">Driver</option>
                 <option value="partners">Partner</option>
                 <option value="admin">Admin</option>
@@ -1049,12 +1049,12 @@ function AdminDashboard() {
             <button className="modal-close" onClick={() => setViewUser(null)}><FaXmark /></button>
             <div className="modal-icon"><FaUser /></div>
             <h2>{viewUser.name}</h2>
-            <p className="muted">{viewUser.role} · {viewUser.status}</p>
+             <p className="muted">{viewUser.role === "rider" ? "Passenger" : viewUser.role} · {viewUser.status}</p>
 
             <div className="kyc-grid">
               <div className="kyc-field">
                 <small>Role</small>
-                <span>{viewUser.role || "rider"}</span>
+                 <span>{viewUser.role === "rider" ? "Passenger" : viewUser.role || "Passenger"}</span>
               </div>
               <div className="kyc-field">
                 <small>Status</small>

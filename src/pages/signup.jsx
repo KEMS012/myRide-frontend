@@ -101,7 +101,7 @@ function Register() {
         <img src="/myryde-logo.png" alt="MyRyde" className="register-logo" />
 
         <h2>Create your account</h2>
-        <p className="register-subtitle">Join thousands of riders in Ogbomoso</p>
+        <p className="register-subtitle">Join thousands of passengers in Ogbomoso</p>
 
         <div className="role-selector">
           <button
@@ -109,7 +109,7 @@ function Register() {
             onClick={() => setRole("rider")}
             type="button"
           >
-            I'm a Rider
+            I'm a Passenger
           </button>
 
           <button

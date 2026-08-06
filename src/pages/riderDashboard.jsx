@@ -1,4 +1,4 @@
-import "../styles/riderDashboard.css";
+﻿import "../styles/riderDashboard.css";
 import { useState, useMemo, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../firebase/useAuth";
@@ -60,7 +60,7 @@ const navItems = [
   { id: "book", label: "Book a Ride", icon: <FaCarSide /> },
   { id: "trips", label: "My Trips", icon: <FaLocationDot /> },
   { id: "scheduled", label: "Scheduled", icon: <FaCalendarDays /> },
-  { id: "fixed", label: "Fixed Passenger", icon: <FaMotorcycle /> },
+  { id: "fixed", label: "Fixed Rides", icon: <FaMotorcycle /> },
   { id: "drivers", label: "Available Drivers", icon: <FaCar /> },
   { id: "emergency", label: "Emergency", icon: <FaPhone /> },
   { id: "support", label: "Support", icon: <FaComment /> },
@@ -144,7 +144,7 @@ function RiderDashboard() {
        unsubNotifs?.();
      };
         } catch (err) {
-          console.error("Rider dashboard load error:", err);
+           console.error("Passenger dashboard load error:", err);
           const msg = err?.message || "Failed to load dashboard data.";
           if (msg.toLowerCase().includes("permission")) {
             setDataError("Permission denied while loading rides or schedules. Please sign out and sign in again. If this persists, check Firestore rules.");
@@ -197,7 +197,7 @@ function RiderDashboard() {
           };
           await updateDoc(docRef("users", user.uid), { locationSharingEnabled: true, lastLocation: coords });
           setLocationSharing(true);
-          setLocationStatus(`Shared · ${coords.latitude.toFixed(4)}, ${coords.longitude.toFixed(4)}`);
+          setLocationStatus(`Shared Â· ${coords.latitude.toFixed(4)}, ${coords.longitude.toFixed(4)}`);
           showToast("Location sharing enabled.");
         },
         () => {
@@ -324,7 +324,7 @@ function RiderDashboard() {
           to: destination,
           type: rideType,
           riderName: profile?.name,
-          rideFare: "₦1,200",
+          rideFare: "â‚¦1,200",
         });
         const drivers = await getDrivers();
         if (drivers.length > 0) {
@@ -427,7 +427,7 @@ function RiderDashboard() {
       plan: "Weekly",
       schedule: "Mon-Fri",
     });
-    showToast("Fixed passenger subscription created.");
+    showToast("Fixed ride subscription created.");
     getFixedRidesForUser(user.uid).then(setFixedList);
   };
 
@@ -438,7 +438,7 @@ function RiderDashboard() {
     end.setHours(end.getHours() + 1);
     window.open(
       generateGoogleCalendarUrl({
-        title: `MyRyde: ${ride.from} → ${ride.to}`,
+        title: `MyRyde: ${ride.from} â†’ ${ride.to}`,
         start,
         end,
         details: ride.type,
@@ -533,7 +533,7 @@ function RiderDashboard() {
                   ))}
                   {notifications.map((n) => (
                     <div key={n.id} className={`notif-item ${n.read ? "" : "unread"}`}>
-                      <p><strong>{n.title}</strong> — {n.message}</p>
+                      <p><strong>{n.title}</strong> â€” {n.message}</p>
                       <small>{n.createdAt?.toDate ? n.createdAt.toDate().toLocaleString() : n.createdAt || ""}</small>
                     </div>
                   ))}
@@ -558,7 +558,7 @@ function RiderDashboard() {
           {dataError && (
             <div className="dashboard-loading">
               <div className="loading-card">
-                <h2>Couldn’t load rider dashboard</h2>
+                <h2>Couldnâ€™t load rider dashboard</h2>
                 <p>{dataError}</p>
                 <button className="qb-btn" onClick={() => window.location.reload()}>Retry</button>
               </div>
@@ -608,7 +608,7 @@ function RiderDashboard() {
                     return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
                   }).length), icon: <FaCalendarDays />, tone: "green" },
                   { label: "Reward Points", value: rewards ? String(rewards.points) : "0", icon: <FaTrophy />, tone: "gold" },
-                  { label: "Wallet Balance", value: "₦0", icon: <FaWallet />, tone: "purple" },
+                  { label: "Wallet Balance", value: "â‚¦0", icon: <FaWallet />, tone: "purple" },
                 ].map((s) => (
                   <div className={`stat-box ${s.tone}`} key={s.label}>
                     <div className="stat-icon">{s.icon}</div>
@@ -641,9 +641,9 @@ function RiderDashboard() {
                     {allTrips.slice(0, 4).map((t) => (
                       <div className="trips-table-row" key={t.id}>
                         <span className="trip-id">{t.id}</span>
-                        <span>{t.route || `${t.from || ""} → ${t.to || ""}`}</span>
-                        <span>{t.createdAt?.toDate ? t.createdAt.toDate().toLocaleDateString() : "—"}</span>
-                        <span className="fare">{t.rideFare || t.fare || "—"}</span>
+                        <span>{t.route || `${t.from || ""} â†’ ${t.to || ""}`}</span>
+                        <span>{t.createdAt?.toDate ? t.createdAt.toDate().toLocaleDateString() : "â€”"}</span>
+                        <span className="fare">{t.rideFare || t.fare || "â€”"}</span>
                         <span>
                           <em
                             className={`status ${
@@ -677,7 +677,7 @@ function RiderDashboard() {
                           <FaClock />
                         </div>
                         <div className="upcoming-info">
-                          <strong>{r.from} → {r.to}</strong>
+                          <strong>{r.from} â†’ {r.to}</strong>
                           <small>{r.datetime ? new Date(r.datetime).toLocaleString() : r.time}</small>
                         </div>
                         <span className="upcoming-tag">{r.type}</span>
@@ -701,7 +701,7 @@ function RiderDashboard() {
                     <div className="rewards-top">
                       <FaTrophy />
                       <div>
-                        <strong>Silver Rider</strong>
+                        <strong>Silver Passenger</strong>
                         <small>820 / 1000 points</small>
                       </div>
                     </div>
@@ -726,13 +726,13 @@ function RiderDashboard() {
                     />
                     <div className="fixed-info">
                       <strong>Musa A.</strong>
-                      <small><FaStar /> 4.9 · Your Fixed Rider</small>
+                      <small><FaStar /> 4.9 Â· Your Fixed Passenger</small>
                     </div>
                     <button
                       className="qb-btn small"
                       onClick={() => {
                         goTo("book");
-                        showToast("Booking with your Fixed Rider, Musa A.");
+                        showToast("Booking with Your Fixed Passenger, Musa A.");
                       }}
                     >
                       Book
@@ -780,7 +780,7 @@ function RiderDashboard() {
                   >
                     <option>Standard Ride</option>
                     <option>Executive Ride</option>
-                    <option>Fixed Rider</option>
+                    <option>Fixed Passenger</option>
                   </select>
 
                   <div className="ride-choice">
@@ -852,9 +852,9 @@ function RiderDashboard() {
                 {filteredTrips.map((t) => (
                   <div className="trips-table-row" key={t.id}>
                     <span className="trip-id">{t.id}</span>
-                    <span>{t.route || `${t.from || ""} → ${t.to || ""}`}</span>
-                    <span>{t.createdAt?.toDate ? t.createdAt.toDate().toLocaleDateString() : "—"}</span>
-                    <span className="fare">{t.rideFare || t.fare || "—"}</span>
+                    <span>{t.route || `${t.from || ""} â†’ ${t.to || ""}`}</span>
+                    <span>{t.createdAt?.toDate ? t.createdAt.toDate().toLocaleDateString() : "â€”"}</span>
+                    <span className="fare">{t.rideFare || t.fare || "â€”"}</span>
                       <span>
                         <em
                           className={`status ${
@@ -890,7 +890,7 @@ function RiderDashboard() {
                       <FaClock />
                     </div>
                     <div className="upcoming-info">
-                      <strong>{r.from} → {r.to}</strong>
+                      <strong>{r.from} â†’ {r.to}</strong>
                       <small>{r.time}</small>
                     </div>
                     <span className="upcoming-tag">{r.type}</span>
@@ -909,7 +909,7 @@ function RiderDashboard() {
           {active === "fixed" && (
             <section className="view-narrow">
               <div className="panel fixed-detail">
-                <h3>Choose a Fixed Rider</h3>
+                <h3>Choose a Fixed Passenger</h3>
                 <p className="muted">Subscribe to the same trusted driver weekly or monthly.</p>
                 <div className="form-field" style={{ marginBottom: "1rem" }}>
                   <FaMagnifyingGlass />
@@ -927,7 +927,7 @@ function RiderDashboard() {
                       <img src={d.avatar || "https://randomuser.me/api/portraits/men/32.jpg"} alt={d.name} />
                       <div>
                         <strong>{d.name}</strong>
-                        <small>{d.town || "Ogbomoso"} · ⭐ {d.rating || "4.5"}</small>
+                        <small>{d.town || "Ogbomoso"} Â· â­ {d.rating || "4.5"}</small>
                       </div>
                       <div className="driver-actions">
                         <div className="rating-row">
@@ -957,7 +957,7 @@ function RiderDashboard() {
                 <div className="rewards-top">
                   <FaTrophy />
                   <div>
-                    <strong>{rewards ? rewards.tier : "Bronze Rider"}</strong>
+                    <strong>{rewards ? rewards.tier : "Bronze Passenger"}</strong>
                     <small>{rewards ? `${rewards.points} / 1000 points` : "Complete rides to earn points"}</small>
                   </div>
                 </div>
@@ -998,7 +998,7 @@ function RiderDashboard() {
                 <div className="panel wallet-card">
                   <FaWallet className="wallet-chip" />
                   <small>Wallet Balance</small>
-                  <h2>₦0</h2>
+                  <h2>â‚¦0</h2>
                   <div className="wallet-actions">
                     <button className="qb-btn small" onClick={() => showToast("Top-up coming soon.")}>
                       <FaPlus /> Add Funds
@@ -1043,7 +1043,7 @@ function RiderDashboard() {
                   </div>
                   <div>
                     <h3>{profile?.name || user?.displayName || "User"}</h3>
-                    <p className="muted">{profile?.role === "driver" ? "Driver" : profile?.role === "partners" ? "Partner" : profile?.role === "admin" ? "Admin" : "Rider"} · {profile?.town || "Ogbomoso"}</p>
+                    <p className="muted">{profile?.role === "driver" ? "Driver" : profile?.role === "partners" ? "Partner" : profile?.role === "admin" ? "Admin" : "Rider"} Â· {profile?.town || "Ogbomoso"}</p>
                     <button
                       type="button"
                       className="link-btn upload-link"
@@ -1341,3 +1341,4 @@ function Toggle({ label, defaultOn = false, onToggle }) {
 }
 
 export default RiderDashboard;
+

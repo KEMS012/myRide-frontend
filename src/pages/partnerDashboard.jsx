@@ -46,7 +46,7 @@ const navItems = [
   { id: "churches", label: "Churches", icon: <FaChurch /> },
   { id: "schools", label: "Schools", icon: <FaSchool /> },
   { id: "programs", label: "Programs", icon: <FaCalendarCheck /> },
-  { id: "riders", label: "Rider Base", icon: <FaUsers /> },
+  { id: "riders", label: "Passenger Base", icon: <FaUsers /> },
   { id: "trips", label: "Trips", icon: <FaRoute /> },
   { id: "revenue", label: "Revenue", icon: <FaSackDollar /> },
   { id: "profile", label: "Profile", icon: <FaUser /> },

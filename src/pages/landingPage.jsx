@@ -66,20 +66,15 @@ function LandingPage() {
 
           <div className="hero-stats">
 
-            <div className="stat-card">
-              <h3>50+</h3>
-              <span>Verified Drivers</span>
-            </div>
+             <div className="stat-card">
+               <h3>50+</h3>
+               <span>Verified Drivers</span>
+             </div>
 
-            <div className="stat-card">
-              <h3>400+</h3>
-              <span>Happy Riders</span>
-            </div>
-
-            <div className="stat-card">
-              <h3>24/7</h3>
-              <span>Customer Support</span>
-            </div>
+             <div className="stat-card">
+               <h3>24/7</h3>
+               <span>Customer Support</span>
+             </div>
 
           </div>
 
@@ -106,7 +101,7 @@ function LandingPage() {
           <select>
             <option>Standard Ride</option>
             <option>Executive Ride</option>
-            <option>Fixed Rider</option>
+            <option>Fixed Ride</option>
           </select>
 
           <div className="ride-choice">
@@ -200,8 +195,8 @@ function LandingPage() {
 
     <div className="why-card">
       <div className="icon-box"><FaMotorcycle /></div>
-      <h3>Fixed Rider</h3>
-      <p>Students and workers can keep the same trusted rider every week.</p>
+      <h3>Fixed Ride</h3>
+      <p>Students and workers can keep the same trusted passenger every week.</p>
     </div>
 
     <div className="why-card">
@@ -251,8 +246,8 @@ function LandingPage() {
         alt="Bike Ride"
       />
       <div className="service-content">
-        <h3>Fixed Rider</h3>
-        <p>Book the same trusted bike rider weekly or monthly.</p>
+        <h3>Fixed Ride</h3>
+        <p>Book the same trusted bike passenger weekly or monthly.</p>
       </div>
     </div>
 
@@ -276,7 +271,7 @@ function LandingPage() {
   <div className="section-title">
     <span>POPULAR DESTINATIONS</span>
     <h2>Move Easily Around Ogbomoso</h2>
-    <p>Frequently visited places by MyRyde riders.</p>
+    <p>Frequently visited places by MyRyde passengers.</p>
   </div>
 
   <div className="destination-grid">
@@ -351,17 +346,17 @@ function LandingPage() {
 
     <span className="section-badge">FEATURED</span>
 
-    <h2>Fixed Rider Program</h2>
+    <h2>Fixed Ride Program</h2>
 
     <p>
-      Our Fixed Rider feature allows passengers to ride with the
-      same trusted bike rider every week or month. Perfect for
+      Our Fixed Ride feature allows passengers to ride with the
+      same trusted bike passenger every week or month. Perfect for
       students, workers and families who value consistency and trust.
     </p>
 
     <ul className="feature-list">
       <li>✔ Weekly & Monthly Plans</li>
-      <li>✔ Same Trusted Rider</li>
+      <li>✔ Same Trusted Passenger</li>
       <li>✔ Priority Scheduling</li>
       <li>✔ Better Safety & Familiarity</li>
     </ul>
@@ -383,7 +378,7 @@ function LandingPage() {
 
       <h3>Musa A.</h3>
 
-      <span>Verified Rider</span>
+      <span>Verified Passenger</span>
 
       <div className="driver-stats">
 
@@ -616,14 +611,14 @@ function LandingPage() {
 
   <div className="section-title">
     <span>TESTIMONIALS</span>
-    <h2>What Our Riders Say</h2>
+    <h2>What Our Passengers Say</h2>
   </div>
 
   <div className="testimonial-grid">
 
     <div className="testimonial-card">
       <p>
-        "The Fixed Rider feature is perfect for my daily trips to LAUTECH."
+        "The Fixed Ride feature is perfect for my daily trips to LAUTECH."
       </p>
       <h4>- Adebayo, Student</h4>
     </div>
@@ -668,7 +663,7 @@ function LandingPage() {
     </div>
 
     <div className="faq-item">
-      <h3>What is Fixed Rider?</h3>
+      <h3>What is Fixed Ride?</h3>
       <p>It lets you ride with the same trusted driver repeatedly.</p>
     </div>
 
