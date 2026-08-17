@@ -1,0 +1,61 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isAuthed() { return request.auth != null; }
+    function isUser(userId) { return isAuthed() && request.auth.uid == userId; }
+    function getUserData() { return get(/databases/$(database)/documents/users/$(request.auth.uid)); }
+    function isRole(role) { return isAuthed() && getUserData().data.role == role; }
+    function isAdmin() { return isRole('admin'); }
+    function isDriver() { return isRole('driver'); }
+    function isRider() { return isRole('rider'); }
+    function isPartner() { return isRole('partners'); }
+
+    match /users/{userId} {
+      allow read: if isAuthed();
+      allow create: if isAuthed() && isUser(userId);
+      allow update: if isAuthed() && (isUser(userId) || isAdmin());
+      allow delete: if isAdmin();
+    }
+
+    match /rides/{rideId} {
+      allow read: if isAuthed() && (resource.data.userId == request.auth.uid || resource.data.driverId == request.auth.uid || isAdmin() || isPartner());
+      allow create: if isAuthed();
+      allow update: if isAuthed() && (resource.data.userId == request.auth.uid || resource.data.driverId == request.auth.uid || isAdmin());
+      allow delete: if isAdmin();
+    }
+
+    match /schedules/{scheduleId} {
+      allow read: if isAuthed() && (resource.data.userId == request.auth.uid || isDriver() || isAdmin());
+      allow create: if isAuthed();
+      allow update: if isAuthed() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow delete: if isAuthed() && (resource.data.userId == request.auth.uid || isAdmin());
+    }
+
+    match /fixedRides/{fixedId} {
+      allow read: if isAuthed() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if isRider();
+      allow update: if isAuthed() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow delete: if isAuthed() && (resource.data.userId == request.auth.uid || isAdmin());
+    }
+
+    match /rewards/{userId} {
+      allow read: if isAuthed() && userId == request.auth.uid;
+      allow write: if isAdmin();
+    }
+
+    match /partners/{partnerId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin() || isPartner();
+    }
+
+    match /programs/{programId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin() || isPartner();
+    }
+
+    match /notifications/{notifId} {
+      allow read: if isAuthed() && resource.data.userId == request.auth.uid;
+      allow create, update, delete: if isAdmin() || isDriver();
+    }
+  }
+}
