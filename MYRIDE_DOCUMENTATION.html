@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MyRyde Documentation</title>
+    <style>
+        @media print {
+            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 0 auto; padding: 20px; }
+            h1 { color: #1565ff; border-bottom: 3px solid #1565ff; padding-bottom: 10px; margin-top: 40px; }
+            h2 { color: #102542; margin-top: 30px; border-bottom: 2px solid #e0e0e0; padding-bottom: 8px; }
+            h3 { color: #1565ff; margin-top: 25px; }
+            table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+            th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+            th { background-color: #1565ff; color: white; }
+            code { background: #f4f4f4; padding: 2px 6px; border-radius: 3px; font-family: monospace; }
+            pre { background: #f4f4f4; padding: 15px; border-radius: 5px; overflow-x: auto; }
+            .toc { background: #f6f9ff; padding: 20px; border-radius: 10px; margin-bottom: 30px; }
+            .toc ul { list-style: none; padding-left: 0; }
+            .toc li { margin: 8px 0; }
+            .toc a { color: #1565ff; text-decoration: none; }
+            .warning { background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 20px 0; }
+            .info { background: #d1ecf1; border-left: 4px solid #17a2b8; padding: 15px; margin: 20px 0; }
+            .page-break { page-break-after: always; }
+        }
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 900px; margin: 0 auto; padding: 20px; background: #f5f5f5; }
+        .container { background: white; padding: 40px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h1 { color: #1565ff; border-bottom: 3px solid #1565ff; padding-bottom: 10px; margin-top: 40px; }
+        h2 { color: #102542; margin-top: 30px; border-bottom: 2px solid #e0e0e0; padding-bottom: 8px; }
+        h3 { color: #1565ff; margin-top: 25px; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background-color: #1565ff; color: white; }
+        code { background: #f4f4f4; padding: 2px 6px; border-radius: 3px; font-family: monospace; }
+        pre { background: #f4f4f4; padding: 15px; border-radius: 5px; overflow-x: auto; }
+        .toc { background: #f6f9ff; padding: 20px; border-radius: 10px; margin-bottom: 30px; }
+        .toc ul { list-style: none; padding-left: 0; }
+        .toc li { margin: 8px 0; }
+        .toc a { color: #1565ff; text-decoration: none; }
+        .warning { background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 20px 0; }
+        .info { background: #d1ecf1; border-left: 4px solid #17a2b8; padding: 15px; margin: 20px 0; }
+        .btn { display: inline-block; background: #1565ff; color: white; padding: 12px 30px; border-radius: 5px; text-decoration: none; margin: 20px 0; }
+        .btn:hover { background: #0d47a1; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>MyRyde Documentation</h1>
+        <p><strong>Version:</strong> 1.0 | <strong>Last Updated:</strong> August 2026</p>
+        
+        <div class="toc">
+            <h2>Table of Contents</h2>
+            <ul>
+                <li><a href="#introduction">1. Introduction</a></li>
+                <li><a href="#how-it-works">2. How MyRyde Works</a></li>
+                <li><a href="#user-roles">3. User Roles</a></li>
+                <li><a href="#getting-started">4. Getting Started</a></li>
+                <li><a href="#passenger-guide">5. Passenger Guide</a></li>
+                <li><a href="#driver-guide">6. Driver Guide</a></li>
+                <li><a href="#partner-guide">7. Partner Guide</a></li>
+                <li><a href="#admin-guide">8. Admin Guide</a></li>
+                <li><a href="#booking-flow">9. Booking Flow</a></li>
+                <li><a href="#payment-integration">10. Payment Integration</a></li>
+                <li><a href="#notifications">11. Notifications</a></li>
+                <li><a href="#calendar-integration">12. Calendar Integration</a></li>
+                <li><a href="#emergency-support">13. Emergency & Support</a></li>
+                <li><a href="#firebase-structure">14. Firebase Structure</a></li>
+                <li><a href="#deployment">15. Deployment</a></li>
+            </ul>
+        </div>
+
+        <h2 id="introduction">1. Introduction</h2>
+        <p>MyRyde is a comprehensive ride-hailing and transportation platform designed for Ogbomoso and surrounding communities. The platform connects passengers with verified drivers, supports church and school partnerships, and provides admin oversight for safe, reliable transportation.</p>
+        
+        <div class="info">
+            <strong>Key Features:</strong>
+            <ul>
+                <li>Real-time ride booking and scheduling</li>
+                <li>Driver availability tracking</li>
+                <li>Google Calendar integration</li>
+                <li>Paystack payment processing</li>
+                <li>Real-time notifications</li>
+                <li>Emergency contacts and support</li>
+                <li>Driver verification and KYC</li>
+                <li>Partner management for churches and schools</li>
+            </ul>
+        </div>
+
+        <h2 id="how-it-works">2. How MyRyde Works</h2>
+        <h3>Architecture Overview</h3>
+        <p>MyRyde uses a modern React frontend with Firebase backend:</p>
+        <pre><code>Frontend: React 19 + Vite 8
+Backend: Firebase (Auth, Firestore, Storage)
+Payments: Paystack Integration
+Calendar: Google Calendar API</code></pre>
+
+        <h3>Data Flow</h3>
+        <ol>
+            <li><strong>Passenger</strong> creates a booking request</li>
+            <li><strong>Firestore</strong> stores the booking in real-time</li>
+            <li><strong>Driver</strong> receives notification of new booking</li>
+            <li><strong>Driver</strong> accepts/declines the booking</li>
+            <li><strong>Admin</strong> receives notification of all bookings</li>
+            <li><strong>Payment</strong> is processed via Paystack</li>
+            <li><strong>Calendar</strong> events are created for both parties</li>
+            <li><strong>Notifications</strong> update all parties in real-time</li>
+        </ol>
+
+        <h2 id="user-roles">3. User Roles</h2>
+        <table>
+            <tr>
+                <th>Role</th>
+                <th>Description</th>
+                <th>Main Features</th>
+            </tr>
+            <tr>
+                <td><strong>Passenger</strong></td>
+                <td>Users who book rides</td>
+                <td>Book rides, view history, make payments, rate drivers</td>
+            </tr>
+            <tr>
+                <td><strong>Driver</strong></td>
+                <td>Verified drivers who provide rides</td>
+                <td>Set availability, accept bookings, complete rides</td>
+            </tr>
+            <tr>
+                <td><strong>Partner</strong></td>
+                <td>Churches and schools</td>
+                <td>Manage programs, view rider base, track revenue</td>
+            </tr>
+            <tr>
+                <td><strong>Admin</strong></td>
+                <td>Platform administrators</td>
+                <td>Manage users, verify drivers, view reports</td>
+            </tr>
+        </table>
+
+        <h2 id="getting-started">4. Getting Started</h2>
+        <h3>Prerequisites</h3>
+        <ul>
+            <li>Node.js 18+ installed</li>
+            <li>Firebase account with project created</li>
+            <li>Paystack account for payments</li>
+            <li>Google Calendar API credentials (optional)</li>
+        </ul>
+
+        <h3>Installation</h3>
+        <pre><code># Clone the repository
+git clone https://github.com/KEMS012/MyRyde.git
+cd MyRyde
+
+# Install dependencies
+npm install
+
+# Create environment file
+cp .env.example .env</code></pre>
+
+        <h3>Environment Variables</h3>
+        <pre><code># Firebase Configuration
+VITE_FIREBASE_API_KEY=your_api_key
+VITE_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
+VITE_FIREBASE_PROJECT_ID=your_project_id
+VITE_FIREBASE_STORAGE_BUCKET=your_project.appspot.com
+VITE_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
+VITE_FIREBASE_APP_ID=your_app_id
+VITE_FIREBASE_MEASUREMENT_ID=your_measurement_id
+
+# Paystack Configuration
+VITE_PAYSTACK_PUBLIC_KEY=your_paystack_public_key</code></pre>
+
+        <h3>Development Commands</h3>
+        <pre><code># Start development server
+npm run dev
+
+# Build for production
+npm run build
+
+# Preview production build
+npm run preview</code></pre>
+
+        <h2 id="passenger-guide">5. Passenger Guide</h2>
+        
+        <h3>Registration & Login</h3>
+        <h4>Step 1: Create Account</h4>
+        <ol>
+            <li>Visit the MyRyde homepage</li>
+            <li>Click <strong>"Sign Up"</strong></li>
+            <li>Fill in your details:
+                <ul>
+                    <li>Full Name</li>
+                    <li>Phone Number</li>
+                    <li>Email Address</li>
+                    <li>Password</li>
+                </ul>
+            </li>
+            <li>Select <strong>"I'm a Passenger"</strong></li>
+            <li>Accept Terms and Conditions</li>
+            <li>Click <strong>"Create Account"</strong></li>
+        </ol>
+
+        <h4>Step 2: Email Verification</h4>
+        <ul>
+            <li>Check your email for verification link</li>
+            <li>Click the link to verify your account</li>
+        </ul>
+
+        <h4>Step 3: Login</h4>
+        <ol>
+            <li>Enter your email and password</li>
+            <li>Click <strong>"Login"</strong></li>
+            <li>You'll be redirected to the Passenger Dashboard</li>
+        </ol>
+
+        <h3>Booking a Ride</h3>
+        <h4>Instant Booking</h4>
+        <ol>
+            <li>Click <strong>"Book a Ride"</strong> in the sidebar</li>
+            <li>Enter pickup location</li>
+            <li>Enter destination</li>
+            <li>Select ride type: Standard, Executive, or Fixed</li>
+            <li>Choose <strong>"Ride Now"</strong></li>
+            <li>Click <strong>"Find Available Ride"</strong></li>
+            <li>Select a driver from available options</li>
+            <li>Proceed to payment</li>
+            <li>Confirm booking</li>
+        </ol>
+
+        <h4>Scheduled Booking</h4>
+        <ol>
+            <li>Click <strong>"Book a Ride"</strong></li>
+            <li>Enter pickup and destination</li>
+            <li>Select ride type</li>
+            <li>Choose <strong>"Schedule"</strong></li>
+            <li>Select date and time (must be 24+ hours in advance)</li>
+            <li>Click <strong>"Find Available Ride"</strong></li>
+            <li>The system checks driver availability</li>
+            <li>Select a driver</li>
+            <li>Proceed to payment</li>
+            <li>Confirm booking</li>
+        </ol>
+
+        <h3>My Trips</h3>
+        <p>View all your ride history with filters:</p>
+        <ul>
+            <li><strong>Completed:</strong> Finished rides</li>
+            <li><strong>Cancelled:</strong> Cancelled bookings</li>
+            <li><strong>Pending:</strong> Awaiting confirmation</li>
+            <li><strong>Confirmed:</strong> Accepted by driver</li>
+        </ul>
+
+        <h3>Rewards</h3>
+        <p>Earn points for every ride:</p>
+        <ul>
+            <li><strong>Bronze:</strong> 0-499 points</li>
+            <li><strong>Silver:</strong> 500-999 points</li>
+            <li><strong>Gold:</strong> 1000+ points</li>
+        </ul>
+        <p>Points are awarded: 100 points per completed ride, bonus points for referrals, special promotions.</p>
+
+        <h2 id="driver-guide">6. Driver Guide</h2>
+        
+        <h3>Registration & Verification</h3>
+        <h4>Step 1: Create Account</h4>
+        <ol>
+            <li>Visit MyRyde homepage</li>
+            <li>Click <strong>"Sign Up"</strong></li>
+            <li>Fill in your details</li>
+            <li>Select <strong>"I'm a Driver"</strong></li>
+            <li>Complete driver-specific fields:
+                <ul>
+                    <li>Vehicle type</li>
+                    <li>License number</li>
+                    <li>Vehicle plate number</li>
+                    <li>NIN</li>
+                    <li>BVN</li>
+                    <li>Next of kin</li>
+                    <li>Residential address</li>
+                    <li>Years of experience</li>
+                </ul>
+            </li>
+            <li>Submit for verification</li>
+        </ol>
+
+        <h4>Step 2: Admin Verification</h4>
+        <ul>
+            <li>Admin reviews your documents</li>
+            <li>You'll receive notification when approved</li>
+            <li>Account status changes from "Pending" to "Active"</li>
+        </ul>
+
+        <h3>Driver Dashboard</h3>
+        <h4>Availability Toggle</h4>
+        <ul>
+            <li>Toggle between <strong>Online</strong> and <strong>Offline</strong></li>
+            <li>When online, you receive ride requests</li>
+            <li>When offline, no requests come through</li>
+        </ul>
+
+        <h4>Ride Requests</h4>
+        <ul>
+            <li>View incoming ride requests</li>
+            <li>See passenger name, pickup, destination, fare</li>
+            <li>Accept or decline requests</li>
+            <li>Real-time updates via Firestore</li>
+        </ul>
+
+        <h3>Booking Actions</h3>
+        <h4>Accept a Booking</h4>
+        <ol>
+            <li>Receive notification</li>
+            <li>Click notification to view booking</li>
+            <li>Click <strong>"Accept"</strong></li>
+            <li>Navigate to pickup location</li>
+            <li>Update ride status to "In Progress"</li>
+            <li>Complete ride when done</li>
+        </ol>
+
+        <h4>Decline a Booking</h4>
+        <ol>
+            <li>Receive notification</li>
+            <li>Click <strong>"Decline"</strong></li>
+            <li>Ride returns to available pool</li>
+        </ol>
+
+        <h2 id="partner-guide">7. Partner Guide</h2>
+        
+        <h3>Partner Registration</h3>
+        <ol>
+            <li>Sign up as a Partner</li>
+            <li>Fill in organization details</li>
+            <li>Submit for admin approval</li>
+            <li>Once approved, access Partner Dashboard</li>
+        </ol>
+
+        <h3>Creating a Program</h3>
+        <ol>
+            <li>Click <strong>"Programs"</strong></li>
+            <li>Click <strong>"New Program"</strong></li>
+            <li>Enter program details:
+                <ul>
+                    <li>Program name</li>
+                    <li>Partner organization</li>
+                    <li>Benefits</li>
+                    <li>Rider capacity</li>
+                </ul>
+            </li>
+            <li>Set status: Draft or Live</li>
+            <li>Save program</li>
+        </ol>
+
+        <h2 id="admin-guide">8. Admin Guide</h2>
+        
+        <h3>Dashboard Overview</h3>
+        <p>Real-time statistics:</p>
+        <ul>
+            <li>Total passengers</li>
+            <li>Total drivers</li>
+            <li>Available drivers</li>
+            <li>Total bookings</li>
+            <li>Pending bookings</li>
+            <li>Completed rides</li>
+            <li>Cancelled rides</li>
+            <li>Revenue</li>
+        </ul>
+
+        <h3>Driver Verification</h3>
+        <ol>
+            <li>Click on pending driver</li>
+            <li>Review submitted documents:
+                <ul>
+                    <li>Vehicle photo</li>
+                    <li>License</li>
+                    <li>Vehicle plate number</li>
+                    <li>NIN/BVN</li>
+                </ul>
+            </li>
+            <li>Approve or reject verification</li>
+            <li>Driver receives notification</li>
+        </ol>
+
+        <h2 id="booking-flow">9. Booking Flow</h2>
+        <div class="info">
+            <strong>Complete Workflow:</strong><br>
+            1. Passenger creates booking → 2. Firestore stores booking → 3. Driver receives notification → 4. Driver accepts/declines → 5. Payment processed → 6. Ride executed → 7. Post-ride rating
+        </div>
+
+        <h3>Booking Status Values</h3>
+        <table>
+            <tr>
+                <th>Status</th>
+                <th>Description</th>
+            </tr>
+            <tr><td>requested</td><td>Booking created, awaiting driver</td></tr>
+            <tr><td>accepted</td><td>Driver accepted the booking</td></tr>
+            <tr><td>in_progress</td><td>Ride is currently happening</td></tr>
+            <tr><td>completed</td><td>Ride finished successfully</td></tr>
+            <tr><td>cancelled</td><td>Booking was cancelled</td></tr>
+            <tr><td>rejected</td><td>Driver declined the booking</td></tr>
+        </table>
+
+        <h2 id="payment-integration">10. Payment Integration</h2>
+        
+        <h3>Paystack Integration</h3>
+        <p>MyRyde uses Paystack for secure payment processing.</p>
+
+        <h4>Payment Flow</h4>
+        <ol>
+            <li>Passenger completes booking</li>
+            <li>System generates payment reference</li>
+            <li>Passenger redirected to Paystack checkout</li>
+            <li>Passenger enters card details</li>
+            <li>Paystack processes payment</li>
+            <li>Payment verified on backend</li>
+            <li>Booking updated to "paid"</li>
+            <li>Receipt generated</li>
+        </ol>
+
+        <h4>Payment Status</h4>
+        <table>
+            <tr>
+                <th>Status</th>
+                <th>Description</th>
+            </tr>
+            <tr><td>pending</td><td>Payment initiated</td></tr>
+            <tr><td>paid</td><td>Payment successful</td></tr>
+            <tr><td>failed</td><td>Payment failed</td></tr>
+            <tr><td>cancelled</td><td>Payment cancelled</td></tr>
+        </table>
+
+        <div class="warning">
+            <strong>Security Note:</strong> Paystack secret keys are NEVER exposed in frontend code. All payments use HTTPS and verification happens server-side.
+        </div>
+
+        <h2 id="notifications">11. Notifications</h2>
+        
+        <h3>Real-Time Notification System</h3>
+        <p>MyRyde uses Firebase Firestore for real-time notifications.</p>
+
+        <h3>Notification Types</h3>
+        <table>
+            <tr>
+                <th>Type</th>
+                <th>Trigger</th>
+                <th>Recipient</th>
+            </tr>
+            <tr><td>new_booking</td><td>New booking created</td><td>Driver, Admin</td></tr>
+            <tr><td>booking_confirmed</td><td>Booking accepted</td><td>Passenger</td></tr>
+            <tr><td>ride_completed</td><td>Ride finished</td><td>Passenger, Driver</td></tr>
+            <tr><td>payment_received</td><td>Payment successful</td><td>Passenger, Driver, Admin</td></tr>
+            <tr><td>driver_verification</td><td>New driver registered</td><td>Admin</td></tr>
+            <tr><td>rating_received</td><td>Driver got rated</td><td>Driver</td></tr>
+        </table>
+
+        <h2 id="calendar-integration">12. Calendar Integration</h2>
+        
+        <h3>Google Calendar Integration</h3>
+        <p>MyRyde generates Google Calendar event links for scheduled rides.</p>
+
+        <h3>For Passengers</h3>
+        <ol>
+            <li>Book a scheduled ride</li>
+            <li>Click <strong>"Add to Calendar"</strong> on the booking</li>
+            <li>Opens Google Calendar with pre-filled event</li>
+        </ol>
+
+        <h3>Calendar Event Details</h3>
+        <ul>
+            <li><strong>Title:</strong> MyRyde Ride: Pickup → Destination</li>
+            <li><strong>Date:</strong> Scheduled ride date</li>
+            <li><strong>Time:</strong> Scheduled ride time</li>
+            <li><strong>Location:</strong> Pickup address</li>
+            <li><strong>Description:</strong> Driver, booking reference, destination</li>
+        </ul>
+
+        <h2 id="emergency-support">13. Emergency & Support</h2>
+        
+        <h3>Emergency Contacts</h3>
+        <p>Every passenger has access to emergency contacts:</p>
+        <ol>
+            <li>Click <strong>"Emergency"</strong> in sidebar</li>
+            <li>View saved contacts</li>
+            <li>Quick call button for each contact</li>
+            <li>Add new emergency contacts</li>
+        </ol>
+        <p><strong>Default contact:</strong> MyRyde Support (+234 808 591 9225)</p>
+
+        <h3>Support Center</h3>
+        <p>Access help and support:</p>
+        <ul>
+            <li><strong>Call Support:</strong> Direct call to support line</li>
+            <li><strong>Email Support:</strong> Send support request</li>
+            <li><strong>FAQ:</strong> Browse common questions</li>
+            <li><strong>Report Issue:</strong> Submit bug reports or complaints</li>
+        </ul>
+
+        <h2 id="firebase-structure">14. Firebase Structure</h2>
+        
+        <h3>Collections</h3>
+        
+        <h4>users</h4>
+        <p>Stores all user profiles (passengers, drivers, partners, admins).</p>
+        <pre><code>{
+  uid: "user_unique_id",
+  name: "Full Name",
+  email: "email@example.com",
+  phone: "+234 800 000 0000",
+  role: "rider|driver|partner|admin",
+  status: "Active|Pending|Suspended",
+  avatar: "profile_image_url",
+  town: "Ogbomoso",
+  area: "Sabo",
+  vehicle: "Motorcycle",
+  license: "DLN123456",
+  plateNumber: "ABC-1234",
+  rating: 4.5,
+  ratingCount: 12
+}</code></pre>
+
+        <h4>rides</h4>
+        <p>Stores all booking/ride records.</p>
+        <pre><code>{
+  userId: "passenger_uid",
+  driverId: "driver_uid",
+  riderName: "Passenger Name",
+  driverName: "Driver Name",
+  from: "Pickup Location",
+  to: "Destination",
+  route: "Pickup → Destination",
+  type: "Standard Ride|Executive Ride|Fixed Ride",
+  fare: "₦1,200",
+  status: "requested|accepted|in_progress|completed|cancelled|rejected",
+  paymentStatus: "pending|paid|failed|cancelled",
+  createdAt: timestamp
+}</code></pre>
+
+        <h4>schedules</h4>
+        <p>Stores scheduled ride bookings.</p>
+        <pre><code>{
+  userId: "passenger_uid",
+  from: "Pickup",
+  to: "Destination",
+  datetime: "2026-08-12T08:00:00Z",
+  type: "Standard Ride",
+  status: "scheduled|cancelled"
+}</code></pre>
+
+        <h4>fixedRides</h4>
+        <p>Stores fixed ride subscriptions.</p>
+        <pre><code>{
+  userId: "passenger_uid",
+  driverId: "driver_uid",
+  plan: "Weekly|Monthly",
+  schedule: "Mon-Fri",
+  status: "active|cancelled"
+}</code></pre>
+
+        <h4>notifications</h4>
+        <p>Stores real-time notifications.</p>
+        <pre><code>{
+  recipientId: "user_uid",
+  recipientRole: "driver|passenger|admin",
+  bookingId: "booking_reference",
+  title: "Notification title",
+  message: "Detailed message",
+  type: "new_booking|booking_confirmed|ride_completed|payment_received",
+  read: false,
+  createdAt: timestamp
+}</code></pre>
+
+        <h2 id="deployment">15. Deployment</h2>
+        
+        <h3>Vercel Deployment</h3>
+        <ol>
+            <li>Push code to GitHub</li>
+            <li>Visit <a href="https://vercel.com">vercel.com</a></li>
+            <li>Import repository</li>
+            <li>Add environment variables</li>
+            <li>Deploy</li>
+        </ol>
+
+        <h3>Live URL</h3>
+        <p>After deployment, your site will be available at:<br>
+        <code>https://your-project-name.vercel.app</code></p>
+
+        <h2>Troubleshooting</h2>
+        
+        <h3>Common Issues</h3>
+        
+        <h4>Build Fails</h4>
+        <ul>
+            <li>Check Node.js version (18+)</li>
+            <li>Delete node_modules and run npm install again</li>
+            <li>Check for missing environment variables</li>
+        </ul>
+
+        <h4>Firebase Connection Issues</h4>
+        <ul>
+            <li>Verify Firebase config in .env</li>
+            <li>Check Firebase project status</li>
+            <li>Verify security rules allow access</li>
+        </ul>
+
+        <h4>Payment Not Working</h4>
+        <ul>
+            <li>Verify Paystack public key</li>
+            <li>Check internet connection</li>
+            <li>Verify booking exists in Firestore</li>
+        </ul>
+
+        <h4>Notifications Not Appearing</h4>
+        <ul>
+            <li>Check Firestore notifications collection</li>
+            <li>Verify user is authenticated</li>
+            <li>Check browser console for errors</li>
+        </ul>
+
+        <h2>Support</h2>
+        <p>For technical support or questions:</p>
+        <ul>
+            <li><strong>Phone:</strong> +234 808 591 9225</li>
+            <li><strong>Email:</strong> support@myryde.app</li>
+            <li><strong>GitHub Issues:</strong> https://github.com/KEMS012/MyRyde/issues</li>
+        </ul>
+
+        <div class="info" style="margin-top: 40px;">
+            <strong>Note:</strong> This documentation covers the current version of MyRyde. For the latest updates, visit the GitHub repository.
+        </div>
+    </div>
+</body>
+</html>
