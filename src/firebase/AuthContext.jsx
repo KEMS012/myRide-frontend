@@ -12,6 +12,7 @@ import {
   signOut,
   onAuthStateChanged,
   sendPasswordResetEmail,
+  sendEmailVerification,
   updateProfile as firebaseUpdateProfile,
 } from "firebase/auth";
 import { doc, setDoc, getDoc, updateDoc, serverTimestamp } from "firebase/firestore";
@@ -73,8 +74,13 @@ export function AuthProvider({ children }) {
         ...extra,
       };
       await setDoc(doc(db, "users", cred.user.uid), profileData);
+      try {
+        await sendEmailVerification(cred.user);
+      } catch (verificationErr) {
+        console.warn("Verification email failed:", verificationErr);
+      }
       setProfile(profileData);
-      return role;
+      return { role, emailVerified: cred.user.emailVerified };
     } catch (err) {
       console.error("Signup error:", err);
       throw new Error(err.message || "Sign up failed. Please try again.");
@@ -110,6 +116,10 @@ export function AuthProvider({ children }) {
   async function login(email, password) {
     try {
       const cred = await signInWithEmailAndPassword(auth, email, password);
+      if (!cred.user.emailVerified) {
+        await signOut(auth);
+        throw new Error("Please verify your email before logging in. Check your inbox for the verification link.");
+      }
       const snap = await getDoc(doc(db, "users", cred.user.uid));
       if (!snap.exists()) {
         await signOut(auth);

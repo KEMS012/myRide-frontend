@@ -231,7 +231,7 @@ function DriverDashboard() {
         <header className="topbar">
           <div className="topbar-greeting">
             <h1>{navItems.find((n) => n.id === active)?.label}</h1>
-            <p>Welcome back, Musa. Ready to hit the road?</p>
+            <p>Welcome back, {profile?.name?.split(" ")[0] || "Driver"}. Ready to hit the road?</p>
           </div>
 
           <div className="topbar-actions">

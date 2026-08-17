@@ -207,7 +207,7 @@ function PartnerDashboard() {
         <header className="topbar">
           <div className="topbar-greeting">
             <h1>{navItems.find((n) => n.id === active)?.label}</h1>
-            <p>Church &amp; School partnerships across Ogbomoso</p>
+            <p>Welcome back, {profile?.name?.split(" ")[0] || "Partner"}. Church & School partnerships across Ogbomoso</p>
           </div>
 
           <div className="topbar-actions">

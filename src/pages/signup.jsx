@@ -86,8 +86,8 @@ function Register() {
 
     setBusy(true);
     try {
-      const createdRole = await signup(base);
-      navigate(ROLE_ROUTE[createdRole] || "/rider");
+      const result = await signup(base);
+      navigate("/login?verified=1");
     } catch (err) {
       setError(friendlyError(err));
     } finally {
@@ -206,13 +206,15 @@ function Register() {
   );
 }
 
+import { getUserMessage } from "../utils/errors";
+
 function friendlyError(err) {
   const code = err?.code || "";
   if (code.includes("email-already-in-use")) return "An account with this email already exists.";
   if (code.includes("weak-password")) return "Password is too weak (min 6 chars).";
   if (code.includes("invalid-email")) return "Please enter a valid email.";
   if (code.includes("not-configured")) return "Firebase is not configured yet.";
-  return err?.message || "Sign up failed. Please try again.";
+  return getUserMessage(err, "Sign up failed. Please try again.");
 }
 
 export default Register;

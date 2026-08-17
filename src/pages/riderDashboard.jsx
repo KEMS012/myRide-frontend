@@ -491,7 +491,7 @@ function RiderDashboard() {
         <header className="topbar">
           <div className="topbar-greeting">
             <h1>{navItems.find((n) => n.id === active)?.label}</h1>
-            <p>Here's what's happening with your rides today.</p>
+            <p>Welcome back, {profile?.name?.split(" ")[0] || "Passenger"}. Here's what's happening with your rides today.</p>
           </div>
 
           <div className="topbar-actions">

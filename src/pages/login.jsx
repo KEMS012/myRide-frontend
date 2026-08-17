@@ -1,6 +1,6 @@
 import "../styles/login.css";
-import { Link, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { useState, useEffect } from "react";
 import { useAuth } from "../firebase/useAuth";
 import { FaEye, FaEyeSlash } from "react-icons/fa6";
 
@@ -13,12 +13,20 @@ const ROLE_ROUTE = {
 
 function Login() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { login, googleSignIn } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const [verifiedMessage, setVerifiedMessage] = useState("");
+
+  useEffect(() => {
+    if (searchParams.get("verified") === "1") {
+      setVerifiedMessage("Account created! Please verify your email before logging in. Check your inbox for the verification link.");
+    }
+  }, [searchParams]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -83,6 +91,8 @@ function Login() {
             </button>
           </div>
 
+          {verifiedMessage && <p className="auth-success">{verifiedMessage}</p>}
+
           {error && <p className="auth-error">{error}</p>}
 
           <div className="login-options">
@@ -122,6 +132,8 @@ function Login() {
   );
 }
 
+import { getUserMessage } from "../utils/errors";
+
 function friendlyError(err) {
   const code = err?.code || "";
   if (code.includes("user-not-found") || code.includes("wrong-password") || code.includes("invalid-credential"))
@@ -129,7 +141,7 @@ function friendlyError(err) {
   if (code.includes("invalid-email")) return "Please enter a valid email.";
   if (code.includes("too-many-requests")) return "Too many attempts. Try again later.";
   if (code.includes("not-configured")) return "Firebase is not configured yet.";
-  return err?.message || "Login failed. Please try again.";
+  return getUserMessage(err, "Login failed. Please try again.");
 }
 
 export default Login;

@@ -454,7 +454,7 @@ function AdminDashboard() {
         <header className="topbar">
           <div className="topbar-greeting">
             <h1>{navItems.find((n) => n.id === active)?.label}</h1>
-            <p>Control center for all MyRyde activities</p>
+            <p>Welcome back, {authProfile?.name?.split(" ")[0] || "Admin"}. Control center for all MyRyde activities</p>
           </div>
 
           <div className="topbar-actions">
