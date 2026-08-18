@@ -59,6 +59,7 @@ import {
 } from "../services/firestore";
 import { generateGoogleCalendarUrl } from "../utils/calendar";
 import { getUserMessage } from "../utils/errors";
+import { getDynamicFare, estimateBikeFare } from "../utils/fares";
 
 const navItems = [
   { id: "overview", label: "Dashboard", icon: <FaGaugeHigh /> },
@@ -823,10 +824,25 @@ function RiderDashboard() {
                     value={rideType}
                     onChange={(e) => setRideType(e.target.value)}
                   >
-                    <option>Standard Ride</option>
-                    <option>Executive Ride</option>
-                    <option>Fixed Passenger</option>
+                    <option value="Standard Ride">Standard Ride — ₦1,200</option>
+                    <option value="Executive Ride">Executive Ride — ₦2,500</option>
+                    <option value="Fixed Passenger">Fixed Passenger — ₦800</option>
+                    <option value="Bike (Okada)">Bike (Okada) — Dynamic fare</option>
                   </select>
+
+                  {(pickup || destination) && (
+                    <div style={{ background: "var(--surface-2, #f5f5f5)", borderRadius: "10px", padding: "12px", marginBottom: "12px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <span style={{ fontSize: "0.9rem", opacity: 0.8 }}>Estimated Fare</span>
+                      <strong style={{ fontSize: "1.1rem" }}>
+                        ₦{rideType === "Bike (Okada)"
+                          ? (() => {
+                              const est = estimateBikeFare(pickup, destination);
+                              return `${est.min} – ${est.max}`;
+                            })()
+                          : getDynamicFare(pickup, destination, rideType).toLocaleString()}
+                      </strong>
+                    </div>
+                  )}
 
                   <div className="ride-choice">
                     <button
