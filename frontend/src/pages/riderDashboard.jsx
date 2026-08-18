@@ -51,6 +51,7 @@ import {
   setDoc,
   collection,
   addDoc,
+  col,
   acceptRide,
   completeRide,
   onRidesForUserSnapshot,
@@ -204,7 +205,7 @@ function RiderDashboard() {
           };
           await updateDoc(docRef("users", user.uid), { locationSharingEnabled: true, lastLocation: coords });
           setLocationSharing(true);
-          setLocationStatus(`Shared Â· ${coords.latitude.toFixed(4)}, ${coords.longitude.toFixed(4)}`);
+          setLocationStatus(`Shared · ${coords.latitude.toFixed(4)}, ${coords.longitude.toFixed(4)}`);
           showToast("Location sharing enabled.");
         },
         () => {
@@ -307,7 +308,7 @@ function RiderDashboard() {
       return;
     }
     try {
-      await addDoc(collection(db, "supportTickets"), {
+      await addDoc(col("supportTickets"), {
         userId: user.uid,
         userName: profile?.name || user?.displayName || "Anonymous",
         userEmail: profile?.email || user?.email || "",
@@ -334,7 +335,8 @@ function RiderDashboard() {
     try {
       const location = pickup || profile?.town || "Location not provided";
       const contacts = emergencyContacts.map((c) => ({ name: c.name, phone: c.phone }));
-      const response = await fetch("http://localhost:5000/api/emergency", {
+      const API_BASE = import.meta.env.VITE_BACKEND_API_URL || "http://localhost:5000";
+      const response = await fetch(`${API_BASE}/api/emergency`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -772,7 +774,7 @@ function RiderDashboard() {
                     />
                     <div className="fixed-info">
                       <strong>Musa A.</strong>
-                      <small><FaStar /> 4.9 Â· Your Fixed Passenger</small>
+                      <small><FaStar /> 4.9 · Your Fixed Passenger</small>
                     </div>
                     <button
                       className="qb-btn small"
@@ -1000,7 +1002,7 @@ function RiderDashboard() {
                       <img src={d.avatar || "https://randomuser.me/api/portraits/men/32.jpg"} alt={d.name} />
                       <div>
                         <strong>{d.name}</strong>
-                        <small>{d.town || "Ogbomoso"} Â· â­ {d.rating || "4.5"}</small>
+                        <small>{d.town || "Ogbomoso"} · ⭐ {d.rating || "4.5"}</small>
                       </div>
                       <div className="driver-actions">
                         <div className="rating-row">
@@ -1116,7 +1118,7 @@ function RiderDashboard() {
                   </div>
                   <div>
                     <h3>{profile?.name || user?.displayName || "User"}</h3>
-                    <p className="muted">{profile?.role === "driver" ? "Driver" : profile?.role === "partners" ? "Partner" : profile?.role === "admin" ? "Admin" : "Rider"} Â· {profile?.town || "Ogbomoso"}</p>
+                    <p className="muted">{profile?.role === "driver" ? "Driver" : profile?.role === "partners" ? "Partner" : profile?.role === "admin" ? "Admin" : "Rider"} · {profile?.town || "Ogbomoso"}</p>
                     <button
                       type="button"
                       className="link-btn upload-link"

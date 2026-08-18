@@ -31,8 +31,6 @@ import {
 import {
   getPartners,
   getPrograms,
-  createProgram,
-  getPartners as getPartnerDocs,
   deleteDoc,
   updateDoc,
   docRef,
