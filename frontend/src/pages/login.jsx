@@ -24,7 +24,7 @@ function Login() {
 
   useEffect(() => {
     if (searchParams.get("verified") === "1") {
-      setVerifiedMessage("Account created! Please verify your email before logging in. Check your inbox for the verification link.");
+      setVerifiedMessage("Email verified successfully! You can now log in.");
     }
   }, [searchParams]);
 
@@ -141,6 +141,8 @@ function friendlyError(err) {
   if (code.includes("invalid-email")) return "Please enter a valid email.";
   if (code.includes("too-many-requests")) return "Too many attempts. Try again later.";
   if (code.includes("not-configured")) return "Firebase is not configured yet.";
+  const msg = err?.message || "";
+  if (msg.includes("verify your email")) return msg;
   return getUserMessage(err, "Login failed. Please try again.");
 }
 

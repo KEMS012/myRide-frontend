@@ -2,6 +2,7 @@ import { Routes, Route } from "react-router-dom";
 import LandingPage from "./pages/landingPage";
 import Login from "./pages/login";
 import Register from "./pages/signup";
+import VerifyEmail from "./pages/verifyEmail";
 import ForgotPassword from "./pages/forgotPassword";
 import Terms from "./pages/terms";
 import RiderDashboard from "./pages/riderDashboard";
@@ -19,6 +20,7 @@ function App() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/verify-email" element={<VerifyEmail />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/terms" element={<Terms />} />
         <Route path="/rider" element={<ProtectedRoute role="rider" element={<RiderDashboard />} />} />

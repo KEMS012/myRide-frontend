@@ -12,11 +12,12 @@ import {
   signOut,
   onAuthStateChanged,
   sendPasswordResetEmail,
-  sendEmailVerification,
   updateProfile as firebaseUpdateProfile,
 } from "firebase/auth";
 import { doc, setDoc, getDoc, updateDoc, serverTimestamp } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+
+const API_BASE = import.meta.env.VITE_BACKEND_API_URL || "http://localhost:5000";
 
 const AuthContext = createContext(null);
 export { AuthContext };
@@ -70,21 +71,49 @@ export function AuthProvider({ children }) {
         phone,
         role,
         status: role === "driver" ? "Pending" : "Active",
+        emailVerified: false,
         createdAt: new Date(),
         ...extra,
       };
       await setDoc(doc(db, "users", cred.user.uid), profileData);
-      try {
-        await sendEmailVerification(cred.user);
-      } catch (verificationErr) {
-        console.warn("Verification email failed:", verificationErr);
-      }
       setProfile(profileData);
-      return { role, emailVerified: cred.user.emailVerified };
+      return { role, emailVerified: false };
     } catch (err) {
       console.error("Signup error:", err);
       throw new Error(err.message || "Sign up failed. Please try again.");
     }
+  }
+
+  async function sendVerificationCode() {
+    if (!user) throw new Error("Not authenticated");
+    const token = await user.getIdToken();
+    const res = await fetch(`${API_BASE}/api/verification/send-verification-code`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "Failed to send verification code.");
+    return data;
+  }
+
+  async function verifyCode(code) {
+    if (!user) throw new Error("Not authenticated");
+    const token = await user.getIdToken();
+    const res = await fetch(`${API_BASE}/api/verification/verify-code`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ code }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "Verification failed.");
+    setProfile((prev) => ({ ...prev, emailVerified: true }));
+    return data;
   }
 
   async function googleSignIn() {
@@ -116,16 +145,16 @@ export function AuthProvider({ children }) {
   async function login(email, password) {
     try {
       const cred = await signInWithEmailAndPassword(auth, email, password);
-      if (!cred.user.emailVerified) {
-        await signOut(auth);
-        throw new Error("Please verify your email before logging in. Check your inbox for the verification link.");
-      }
       const snap = await getDoc(doc(db, "users", cred.user.uid));
       if (!snap.exists()) {
         await signOut(auth);
         throw new Error("No profile found. Please sign up first.");
       }
       const data = snap.data();
+      if (!data.emailVerified) {
+        await signOut(auth);
+        throw new Error("Please verify your email before logging in. Check your inbox for the verification code.");
+      }
       setProfile(data);
       return data.role;
     } catch (err) {
@@ -172,7 +201,7 @@ export function AuthProvider({ children }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, profile, loading, authError, signup, login, googleSignIn, logout, resetPassword, updateProfile, uploadAvatar }}>
+    <AuthContext.Provider value={{ user, profile, loading, authError, signup, login, googleSignIn, logout, resetPassword, updateProfile, uploadAvatar, sendVerificationCode, verifyCode }}>
       {children}
     </AuthContext.Provider>
   );

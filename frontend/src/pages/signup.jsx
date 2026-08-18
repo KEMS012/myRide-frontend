@@ -87,7 +87,7 @@ function Register() {
     setBusy(true);
     try {
       const result = await signup(base);
-      navigate("/login?verified=1");
+      navigate(`/verify-email?email=${encodeURIComponent(base.email)}`);
     } catch (err) {
       setError(friendlyError(err));
     } finally {
