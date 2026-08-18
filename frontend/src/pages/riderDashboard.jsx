@@ -7,6 +7,7 @@ import {
   FaLocationDot,
   FaCarSide,
   FaCalendarDays,
+  FaCalendarPlus,
   FaMotorcycle,
   FaTrophy,
   FaWallet,
@@ -890,10 +891,17 @@ function RiderDashboard() {
                       <FaClock />
                     </div>
                     <div className="upcoming-info">
-                      <strong>{r.from} â†’ {r.to}</strong>
-                      <small>{r.time}</small>
+                      <strong>{r.from} → {r.to}</strong>
+                      <small>{r.datetime ? new Date(r.datetime).toLocaleString() : r.time}</small>
                     </div>
                     <span className="upcoming-tag">{r.type}</span>
+                    <button
+                      className="ghost-btn"
+                      onClick={() => handleAddToCalendar(r)}
+                      title="Add to Google Calendar"
+                    >
+                      <FaCalendarPlus />
+                    </button>
                     <button
                       className="ghost-btn danger"
                       onClick={() => confirmCancelRide(r.id)}
