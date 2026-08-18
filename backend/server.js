@@ -11,7 +11,6 @@ import notificationRoutes from "./routes/notifications.js";
 import rewardRoutes from "./routes/rewards.js";
 import fixedRideRoutes from "./routes/fixedRides.js";
 import seedRoutes from "./routes/seed.js";
-import verificationRoutes from "./routes/verification.js";
 
 dotenv.config();
 
@@ -25,7 +24,6 @@ app.get("/health", (req, res) => {
 });
 
 app.use("/api/auth", authRoutes);
-app.use("/api/verification", verificationRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/rides", rideRoutes);
 app.use("/api/schedules", scheduleRoutes);

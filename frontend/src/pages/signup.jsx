@@ -86,8 +86,8 @@ function Register() {
 
     setBusy(true);
     try {
-      const result = await signup(base);
-      navigate(`/verify-email?email=${encodeURIComponent(base.email)}`);
+      const createdRole = await signup(base);
+      navigate(ROLE_ROUTE[createdRole] || "/rider");
     } catch (err) {
       setError(friendlyError(err));
     } finally {
