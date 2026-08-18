@@ -3,6 +3,7 @@ import "../styles/partnerDashboard.css";
 import { useState, useMemo, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../firebase/useAuth";
+import { getUserMessage } from "../utils/errors";
 import {
   FaGaugeHigh,
   FaChurch,
@@ -504,10 +505,10 @@ function PartnerDashboard() {
                       email: profileForm.email || profile?.email || user?.email || "",
                       phone: profileForm.phone || profile?.phone || user?.phoneNumber || "",
                     });
-                    showToast("Profile saved successfully.");
-                  } catch {
-                    showToast("Failed to save profile.");
-                  }
+                      showToast("Profile saved successfully.");
+                    } catch (err) {
+                      showToast(getUserMessage(err, "Failed to save profile."));
+                    }
                 }}>
                   <label>Full Name</label>
                   <input type="text" value={profileForm.name} onChange={(e) => setProfileForm({ ...profileForm, name: e.target.value })} />

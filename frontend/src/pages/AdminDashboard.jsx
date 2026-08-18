@@ -36,6 +36,8 @@ import {
   docRef,
   deleteDoc,
   updateDoc,
+  setDoc,
+  getDoc,
   seedInitialData,
   onUsersSnapshot,
   onRidesSnapshot,
@@ -88,6 +90,13 @@ function AdminDashboard() {
   const [loadingData, setLoadingData] = useState(true);
   const [loadError, setLoadError] = useState("");
   const [refreshing, setRefreshing] = useState(false);
+  const [adminSettings, setAdminSettings] = useState({
+    platformName: "MyRyde",
+    supportEmail: "support@myryde.com",
+    commissionRate: "20",
+    autoVerifyNIN: true,
+    maintenanceMode: false,
+  });
   const fileInputRef = useRef(null);
 
   const showToast = (msg) => {
@@ -177,6 +186,18 @@ function AdminDashboard() {
     }
 
     setup();
+
+    async function loadSettings() {
+      try {
+        const snap = await getDoc(docRef("settings", "admin"));
+        if (snap.exists()) {
+          setAdminSettings((prev) => ({ ...prev, ...snap.data() }));
+        }
+      } catch (err) {
+        console.warn("Failed to load admin settings:", err);
+      }
+    }
+    loadSettings();
 
     return () => {
       unsubUsers?.();
@@ -798,15 +819,43 @@ function AdminDashboard() {
                     <FaPen /> Edit
                   </button>
                 </div>
-                <form className="book-form" onSubmit={(e) => { e.preventDefault(); showToast("Settings saved."); }}>
+                <form className="book-form" onSubmit={async (e) => {
+                  e.preventDefault();
+                  try {
+                    await setDoc(docRef("settings", "admin"), adminSettings);
+                    showToast("Settings saved successfully.");
+                  } catch (err) {
+                    showToast("Failed to save settings.");
+                  }
+                }}>
                   <label>Platform Name</label>
-                  <input type="text" defaultValue="MyRyde" />
+                  <input
+                    type="text"
+                    value={adminSettings.platformName}
+                    onChange={(e) => setAdminSettings({ ...adminSettings, platformName: e.target.value })}
+                  />
                   <label>Support Email</label>
-                  <input type="email" defaultValue="support@myryde.com" />
+                  <input
+                    type="email"
+                    value={adminSettings.supportEmail}
+                    onChange={(e) => setAdminSettings({ ...adminSettings, supportEmail: e.target.value })}
+                  />
                   <label>Commission Rate (%)</label>
-                  <input type="text" defaultValue="20" />
-                  <Toggle label="Auto-verify NIN" defaultOn onToggle={showToast} />
-                  <Toggle label="Maintenance mode" onToggle={showToast} />
+                  <input
+                    type="text"
+                    value={adminSettings.commissionRate}
+                    onChange={(e) => setAdminSettings({ ...adminSettings, commissionRate: e.target.value })}
+                  />
+                  <Toggle
+                    label="Auto-verify NIN"
+                    defaultOn={adminSettings.autoVerifyNIN}
+                    onToggle={(val) => setAdminSettings({ ...adminSettings, autoVerifyNIN: val })}
+                  />
+                  <Toggle
+                    label="Maintenance mode"
+                    defaultOn={adminSettings.maintenanceMode}
+                    onToggle={(val) => setAdminSettings({ ...adminSettings, maintenanceMode: val })}
+                  />
                   <button className="qb-btn full" type="submit"><FaCircleCheck /> Save Changes</button>
                 </form>
                 <div className="settings-danger">

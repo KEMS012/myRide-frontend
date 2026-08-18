@@ -7,6 +7,7 @@ import {
   setDoc,
   updateDoc,
   deleteDoc,
+  addDoc,
   query,
   where,
   orderBy,
@@ -16,7 +17,7 @@ import {
 
 export const col = (name) => collection(db, name);
 export const docRef = (name, id) => doc(db, name, id);
-export { getDoc, getDocs, setDoc, updateDoc, deleteDoc, query, where, orderBy, serverTimestamp, onSnapshot };
+export { collection, addDoc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, query, where, orderBy, serverTimestamp, onSnapshot };
 
 export function onUsersSnapshot(listener) {
   const q = query(col("users"), orderBy("createdAt", "desc"));

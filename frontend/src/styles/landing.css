@@ -754,20 +754,3 @@ section{
         grid-template-columns:1fr;
     }
 }
-
-.theme-toggle {
-  background: none;
-  border: 1px solid #eef2f7;
-  color: #1a1a1a;
-  padding: 8px 12px;
-  border-radius: 8px;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 14px;
-}
-
-.theme-toggle:hover {
-  background: #ffffff;
-}

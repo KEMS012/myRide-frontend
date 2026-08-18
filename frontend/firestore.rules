@@ -3,12 +3,10 @@ service cloud.firestore {
   match /databases/{database}/documents {
     function isAuthed() { return request.auth != null; }
     function isUser(userId) { return isAuthed() && request.auth.uid == userId; }
-    function getUserData() { return get(/databases/$(database)/documents/users/$(request.auth.uid)); }
-    function isRole(role) { return isAuthed() && getUserData().data.role == role; }
-    function isAdmin() { return isRole('admin'); }
-    function isDriver() { return isRole('driver'); }
-    function isRider() { return isRole('rider'); }
-    function isPartner() { return isRole('partners'); }
+    function isAdmin() { return isAuthed() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin"; }
+    function isDriver() { return isAuthed() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "driver"; }
+    function isRider() { return isAuthed() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "rider"; }
+    function isPartner() { return isAuthed() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "partners"; }
 
     match /users/{userId} {
       allow read: if isAuthed();
@@ -44,12 +42,12 @@ service cloud.firestore {
     }
 
     match /partners/{partnerId} {
-      allow read: if true;
+      allow read: if isAuthed();
       allow create, update, delete: if isAdmin() || isPartner();
     }
 
     match /programs/{programId} {
-      allow read: if true;
+      allow read: if isAuthed();
       allow create, update, delete: if isAdmin() || isPartner();
     }
 
@@ -58,6 +56,25 @@ service cloud.firestore {
       allow create: if isAuthed();
       allow update: if isAuthed() && (resource.data.recipientId == request.auth.uid || isAdmin() || isDriver());
       allow delete: if isAdmin() || isDriver();
+    }
+
+    match /supportTickets/{ticketId} {
+      allow read: if isAuthed() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if isAuthed();
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    match /emergencyAlerts/{alertId} {
+      allow read: if isAdmin();
+      allow create: if isAuthed();
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    match /settings/{settingId} {
+      allow read: if isAuthed();
+      allow write: if isAdmin();
     }
   }
 }

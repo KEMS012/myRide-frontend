@@ -1,5 +1,7 @@
 import express from "express";
 import cors from "cors";
+import helmet from "helmet";
+import rateLimit from "express-rate-limit";
 import dotenv from "dotenv";
 import authRoutes from "./routes/auth.js";
 import userRoutes from "./routes/users.js";
@@ -11,13 +13,36 @@ import notificationRoutes from "./routes/notifications.js";
 import rewardRoutes from "./routes/rewards.js";
 import fixedRideRoutes from "./routes/fixedRides.js";
 import seedRoutes from "./routes/seed.js";
+import emergencyRoutes from "./routes/emergency.js";
 
 dotenv.config();
 
 const app = express();
 
-app.use(cors({ origin: process.env.CORS_ORIGIN || "http://localhost:5173" }));
-app.use(express.json());
+const corsOrigin = process.env.CORS_ORIGIN || "http://localhost:5173";
+app.use(cors({ origin: corsOrigin, credentials: true }));
+app.use(helmet());
+app.use(express.json({ limit: "10kb" }));
+app.use(express.urlencoded({ extended: true, limit: "10kb" }));
+
+const generalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Too many requests. Please try again later." },
+});
+
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Too many authentication attempts. Please try again later." },
+});
+
+app.use("/api/", generalLimiter);
+app.use("/api/auth/", authLimiter);
 
 app.get("/health", (req, res) => {
   res.json({ status: "ok", timestamp: new Date().toISOString() });
@@ -33,6 +58,7 @@ app.use("/api/notifications", notificationRoutes);
 app.use("/api/rewards", rewardRoutes);
 app.use("/api/fixed-rides", fixedRideRoutes);
 app.use("/api/seed", seedRoutes);
+app.use("/api/emergency", emergencyRoutes);
 
 app.use((req, res) => {
   res.status(404).json({ error: "Not found" });

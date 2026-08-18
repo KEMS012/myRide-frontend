@@ -48,6 +48,9 @@ import {
   deleteDoc,
   docRef,
   updateDoc,
+  setDoc,
+  collection,
+  addDoc,
   acceptRide,
   completeRide,
   onRidesForUserSnapshot,
@@ -55,6 +58,7 @@ import {
   createNotification,
 } from "../services/firestore";
 import { generateGoogleCalendarUrl } from "../utils/calendar";
+import { getUserMessage } from "../utils/errors";
 
 const navItems = [
   { id: "overview", label: "Dashboard", icon: <FaGaugeHigh /> },
@@ -165,6 +169,7 @@ function RiderDashboard() {
   const [destination, setDestination] = useState("");
   const [rideType, setRideType] = useState("Standard Ride");
   const [when, setWhen] = useState("now");
+  const [scheduledDatetime, setScheduledDatetime] = useState("");
 
   const showToast = (msg) => {
     setToast(msg);
@@ -231,8 +236,8 @@ function RiderDashboard() {
       const url = await uploadAvatar(file);
       if (url) setAvatar(url);
       showToast("Profile picture updated.");
-    } catch {
-      showToast("Failed to upload profile picture.");
+    } catch (err) {
+      showToast(getUserMessage(err, "Failed to upload profile picture."));
     }
     e.target.value = "";
   };
@@ -245,8 +250,8 @@ function RiderDashboard() {
         town: profileForm.town || profile?.town || "",
       });
       showToast("Profile saved successfully.");
-    } catch {
-      showToast("Failed to save profile.");
+    } catch (err) {
+      showToast(getUserMessage(err, "Failed to save profile."));
     }
   };
 
@@ -270,8 +275,8 @@ function RiderDashboard() {
         )
       );
       showToast(`Thanks for rating ${driver.name || "this driver"}.`);
-    } catch {
-      showToast("Unable to submit rating right now.");
+    } catch (err) {
+      showToast(getUserMessage(err, "Unable to submit rating right now."));
     }
   };
 
@@ -294,17 +299,56 @@ function RiderDashboard() {
     showToast("Emergency contact removed.");
   };
 
-  const handleSupportSubmit = (e) => {
+  const handleSupportSubmit = async (e) => {
     e.preventDefault();
     if (!supportSubject.trim() || !supportMessage.trim()) {
       showToast("Please fill in both subject and message.");
       return;
     }
-    setSupportSent(true);
-    showToast("Support request submitted.");
-    setSupportSubject("");
-    setSupportMessage("");
-    setTimeout(() => setSupportSent(false), 4000);
+    try {
+      await addDoc(collection(db, "supportTickets"), {
+        userId: user.uid,
+        userName: profile?.name || user?.displayName || "Anonymous",
+        userEmail: profile?.email || user?.email || "",
+        subject: supportSubject.trim(),
+        message: supportMessage.trim(),
+        status: "open",
+        createdAt: new Date(),
+      });
+      setSupportSent(true);
+      showToast("Support request submitted. We will get back to you shortly.");
+      setSupportSubject("");
+      setSupportMessage("");
+      setTimeout(() => setSupportSent(false), 4000);
+    } catch (err) {
+      showToast(getUserMessage(err, "Failed to submit support request."));
+    }
+  };
+
+  const handleSOS = async () => {
+    if (!user) {
+      showToast("You must be logged in.");
+      return;
+    }
+    try {
+      const location = pickup || profile?.town || "Location not provided";
+      const contacts = emergencyContacts.map((c) => ({ name: c.name, phone: c.phone }));
+      const response = await fetch("http://localhost:5000/api/emergency", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${await user.getIdToken()}`,
+        },
+        body: JSON.stringify({ location, message: "Emergency SOS triggered from MyRyde app", contacts }),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to send SOS alert.");
+      }
+      showToast("Emergency alert sent. Admin has been notified.");
+    } catch (err) {
+      showToast(getUserMessage(err, "Failed to send emergency alert."));
+    }
   };
 
   const handleBook = async (e) => {
@@ -318,6 +362,7 @@ function RiderDashboard() {
       return;
     }
     try {
+      const fare = getDynamicFare(pickup, destination, rideType);
       if (when === "now") {
         const ride = await createRide({
           userId: user.uid,
@@ -325,7 +370,7 @@ function RiderDashboard() {
           to: destination,
           type: rideType,
           riderName: profile?.name,
-          rideFare: "â‚¦1,200",
+          rideFare: `₦${fare.toLocaleString()}`,
         });
         const drivers = await getDrivers();
         if (drivers.length > 0) {
@@ -339,26 +384,21 @@ function RiderDashboard() {
             message: `${profile?.name || "A passenger"} has booked a ride from ${pickup} to ${destination}.`,
             type: "new_booking",
           });
-          await createNotification({
-            recipientId: "admin",
-            recipientRole: "admin",
-            bookingId: ride.id,
-            title: "New Booking Received",
-            message: `${profile?.name || "A passenger"} booked a ride from ${pickup} to ${destination}.`,
-            type: "new_booking",
-          });
           showToast(`Ride requested from ${pickup} to ${destination}. Driver ${nearest.name} assigned.`);
         } else {
           showToast(`Ride requested from ${pickup} to ${destination}. Waiting for a driver response.`);
         }
       } else {
-        const dt = document.querySelector('.dt-input')?.value || new Date().toISOString();
+        const dt = scheduledDatetime || new Date().toISOString();
         await createSchedule({ userId: user.uid, from: pickup, to: destination, datetime: dt, type: rideType });
         showToast(`Ride scheduled from ${pickup} to ${destination}.`);
       }
       setPickup("");
       setDestination("");
-      getSchedulesForUser(user.uid).then(setUpcoming);
+      setScheduledDatetime("");
+      getSchedulesForUser(user.uid).then(setUpcoming).catch((err) => {
+        console.error("Failed to refresh schedules:", err);
+      });
     } catch (err) {
       showToast(err.message || "Booking failed.");
     }
@@ -382,7 +422,9 @@ function RiderDashboard() {
   const [availableDrivers, setAvailableDrivers] = useState([]);
 
   useEffect(() => {
-    getDrivers().then(setAvailableDrivers);
+    getDrivers().then(setAvailableDrivers).catch((err) => {
+      console.error("Failed to load drivers:", err);
+    });
   }, []);
 
   useEffect(() => {
@@ -429,7 +471,9 @@ function RiderDashboard() {
       schedule: "Mon-Fri",
     });
     showToast("Fixed ride subscription created.");
-    getFixedRidesForUser(user.uid).then(setFixedList);
+    getFixedRidesForUser(user.uid).then(setFixedList).catch((err) => {
+      console.error("Failed to refresh fixed rides:", err);
+    });
   };
 
   const handleAddToCalendar = (ride) => {
@@ -439,7 +483,7 @@ function RiderDashboard() {
     end.setHours(end.getHours() + 1);
     window.open(
       generateGoogleCalendarUrl({
-        title: `MyRyde: ${ride.from} â†’ ${ride.to}`,
+        title: `MyRyde: ${ride.from} → ${ride.to}`,
         start,
         end,
         details: ride.type,
@@ -534,7 +578,7 @@ function RiderDashboard() {
                   ))}
                   {notifications.map((n) => (
                     <div key={n.id} className={`notif-item ${n.read ? "" : "unread"}`}>
-                      <p><strong>{n.title}</strong> â€” {n.message}</p>
+                      <p><strong>{n.title}</strong> — {n.message}</p>
                       <small>{n.createdAt?.toDate ? n.createdAt.toDate().toLocaleString() : n.createdAt || ""}</small>
                     </div>
                   ))}
@@ -609,7 +653,7 @@ function RiderDashboard() {
                     return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
                   }).length), icon: <FaCalendarDays />, tone: "green" },
                   { label: "Reward Points", value: rewards ? String(rewards.points) : "0", icon: <FaTrophy />, tone: "gold" },
-                  { label: "Wallet Balance", value: "â‚¦0", icon: <FaWallet />, tone: "purple" },
+                  { label: "Wallet Balance", value: "₦0", icon: <FaWallet />, tone: "purple" },
                 ].map((s) => (
                   <div className={`stat-box ${s.tone}`} key={s.label}>
                     <div className="stat-icon">{s.icon}</div>
@@ -642,9 +686,9 @@ function RiderDashboard() {
                     {allTrips.slice(0, 4).map((t) => (
                       <div className="trips-table-row" key={t.id}>
                         <span className="trip-id">{t.id}</span>
-                        <span>{t.route || `${t.from || ""} â†’ ${t.to || ""}`}</span>
-                        <span>{t.createdAt?.toDate ? t.createdAt.toDate().toLocaleDateString() : "â€”"}</span>
-                        <span className="fare">{t.rideFare || t.fare || "â€”"}</span>
+                        <span>{t.route || `${t.from || ""} → ${t.to || ""}`}</span>
+                        <span>{t.createdAt?.toDate ? t.createdAt.toDate().toLocaleDateString() : "—"}</span>
+                        <span className="fare">{t.rideFare || t.fare || "—"}</span>
                         <span>
                           <em
                             className={`status ${
@@ -678,7 +722,7 @@ function RiderDashboard() {
                           <FaClock />
                         </div>
                         <div className="upcoming-info">
-                          <strong>{r.from} â†’ {r.to}</strong>
+                          <strong>{r.from} → {r.to}</strong>
                           <small>{r.datetime ? new Date(r.datetime).toLocaleString() : r.time}</small>
                         </div>
                         <span className="upcoming-tag">{r.type}</span>
@@ -808,7 +852,12 @@ function RiderDashboard() {
                   {when === "later" && (
                     <>
                       <label>Date &amp; Time</label>
-                      <input type="datetime-local" className="dt-input" />
+                      <input
+                        type="datetime-local"
+                        className="dt-input"
+                        value={scheduledDatetime}
+                        onChange={(e) => setScheduledDatetime(e.target.value)}
+                      />
                     </>
                   )}
 
@@ -853,9 +902,9 @@ function RiderDashboard() {
                 {filteredTrips.map((t) => (
                   <div className="trips-table-row" key={t.id}>
                     <span className="trip-id">{t.id}</span>
-                    <span>{t.route || `${t.from || ""} â†’ ${t.to || ""}`}</span>
-                    <span>{t.createdAt?.toDate ? t.createdAt.toDate().toLocaleDateString() : "â€”"}</span>
-                    <span className="fare">{t.rideFare || t.fare || "â€”"}</span>
+                    <span>{t.route || `${t.from || ""} → ${t.to || ""}`}</span>
+                    <span>{t.createdAt?.toDate ? t.createdAt.toDate().toLocaleDateString() : "—"}</span>
+                    <span className="fare">{t.rideFare || t.fare || "—"}</span>
                       <span>
                         <em
                           className={`status ${
@@ -1006,7 +1055,7 @@ function RiderDashboard() {
                 <div className="panel wallet-card">
                   <FaWallet className="wallet-chip" />
                   <small>Wallet Balance</small>
-                  <h2>â‚¦0</h2>
+                  <h2>₦0</h2>
                   <div className="wallet-actions">
                     <button className="qb-btn small" onClick={() => showToast("Top-up coming soon.")}>
                       <FaPlus /> Add Funds
@@ -1123,7 +1172,6 @@ function RiderDashboard() {
                 <Toggle label="Email Updates" onToggle={showToast} />
                 <Toggle label="SMS Ride Alerts" defaultOn onToggle={showToast} />
                 <Toggle label="Share Trip with Contacts" defaultOn onToggle={showToast} />
-                <Toggle label="Dark Mode" onToggle={showToast} />
 
                 <div className="location-toggle">
                   <button
@@ -1217,13 +1265,25 @@ function RiderDashboard() {
              </section>
            )}
 
-           {active === "emergency" && (
-            <section className="view-narrow">
-              <div className="panel">
-                <div className="panel-head">
-                  <h3>Emergency Contacts</h3>
-                </div>
-                <p className="muted">Add trusted contacts you can reach quickly in case of an emergency.</p>
+            {active === "emergency" && (
+             <section className="view-narrow">
+               <div className="panel">
+                 <div className="panel-head">
+                   <h3>Emergency</h3>
+                 </div>
+                 <p className="muted">Tap SOS to send an emergency alert to admin with your location and contacts.</p>
+
+                 <button
+                   className="qb-btn full sos-btn"
+                   onClick={handleSOS}
+                   style={{ background: "#dc2626", color: "#fff", marginBottom: "1rem" }}
+                 >
+                   <FaPhone /> SOS - Emergency Alert
+                 </button>
+
+                 <div className="panel-head" style={{ marginTop: "1rem" }}>
+                   <h3>Emergency Contacts</h3>
+                 </div>
 
                 <div className="emergency-list">
                   {emergencyContacts.map((c) => (

@@ -3,6 +3,7 @@ import "../styles/driverDashboard.css";
 import { useState, useMemo, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../firebase/useAuth";
+import { getUserMessage } from "../utils/errors";
 import {
   FaGaugeHigh,
   FaBellConcierge,
@@ -600,8 +601,8 @@ function DriverDashboard() {
                         email: profileForm.email || profile?.email || user?.email || "",
                       });
                       showToast("Profile saved successfully.");
-                    } catch {
-                      showToast("Failed to save profile.");
+                    } catch (err) {
+                      showToast(getUserMessage(err, "Failed to save profile."));
                     }
                   }}
                 >
