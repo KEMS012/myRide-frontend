@@ -363,12 +363,6 @@ function AdminDashboard() {
     setEditTarget({ ...record, __kind: kind });
   };
 
-  const sampleNotifications = [
-    { id: 1, text: "2 driver verifications awaiting review.", time: "10m ago", unread: true },
-    { id: 2, text: "Grace Thompson was suspended.", time: "1h ago", unread: true },
-    { id: 3, text: "Daily revenue hit ₦284k.", time: "3h ago", unread: false },
-  ];
-
   useEffect(() => {
     let cancelled = false;
 
@@ -543,18 +537,16 @@ function AdminDashboard() {
                       Close
                     </button>
                   </div>
-                  {notifications.length === 0 && sampleNotifications.map((n) => (
-                    <div key={n.id} className={`notif-item ${n.unread ? "unread" : ""}`}>
-                      <p>{n.text}</p>
-                      <small>{n.time}</small>
-                    </div>
-                  ))}
-                  {notifications.map((n) => (
-                    <div key={n.id} className={`notif-item ${n.read ? "" : "unread"}`}>
-                      <p><strong>{n.title}</strong> — {n.message}</p>
-                      <small>{n.createdAt?.toDate ? n.createdAt.toDate().toLocaleString() : n.createdAt || ""}</small>
-                    </div>
-                  ))}
+                  {notifications.length === 0 ? (
+                    <p className="empty-note">No notifications yet.</p>
+                  ) : (
+                    notifications.map((n) => (
+                      <div key={n.id} className={`notif-item ${n.read ? "" : "unread"}`}>
+                        <p><strong>{n.title}</strong> — {n.message}</p>
+                        <small>{n.createdAt?.toDate ? n.createdAt.toDate().toLocaleString() : n.createdAt || ""}</small>
+                      </div>
+                    ))
+                  )}
                 </div>
               )}
             </div>

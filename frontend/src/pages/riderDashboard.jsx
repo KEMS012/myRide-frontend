@@ -120,11 +120,6 @@ function RiderDashboard() {
   }));
   const [driverSearch, setDriverSearch] = useState(profile?.town || "");
   const fileInputRef = useRef(null);
-  const [sampleNotifications] = useState([
-    { id: 1, text: "Your driver Musa A. is 2 minutes away.", time: "5m ago", unread: true },
-    { id: 2, text: "Ride completed. Rate your trip!", time: "1h ago", unread: true },
-    { id: 3, text: "You earned 40 reward points", time: "3h ago", unread: false },
-  ]);
 
     useEffect(() => {
       if (!user) return;
@@ -612,18 +607,16 @@ function RiderDashboard() {
                       Close
                     </button>
                   </div>
-                  {notifications.length === 0 && sampleNotifications.map((n) => (
-                    <div key={n.id} className={`notif-item ${n.unread ? "unread" : ""}`}>
-                      <p>{n.text}</p>
-                      <small>{n.time}</small>
-                    </div>
-                  ))}
-                  {notifications.map((n) => (
-                    <div key={n.id} className={`notif-item ${n.read ? "" : "unread"}`}>
-                      <p><strong>{n.title}</strong> — {n.message}</p>
-                      <small>{n.createdAt?.toDate ? n.createdAt.toDate().toLocaleString() : n.createdAt || ""}</small>
-                    </div>
-                  ))}
+                  {notifications.length === 0 ? (
+                    <p className="empty-note">No notifications yet.</p>
+                  ) : (
+                    notifications.map((n) => (
+                      <div key={n.id} className={`notif-item ${n.read ? "" : "unread"}`}>
+                        <p><strong>{n.title}</strong> — {n.message}</p>
+                        <small>{n.createdAt?.toDate ? n.createdAt.toDate().toLocaleString() : n.createdAt || ""}</small>
+                      </div>
+                    ))
+                  )}
                 </div>
               )}
             </div>

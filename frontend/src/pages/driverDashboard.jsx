@@ -84,10 +84,6 @@ function DriverDashboard() {
     plateNumber: profile?.plateNumber || "",
   }));
   const fileInputRef = useRef(null);
-  const [sampleNotifications] = useState([
-    { id: 1, text: "New ride request from Esther A. nearby.", time: "2m ago", unread: true },
-    { id: 2, text: "You received a 5-star rating from Adebayo O.", time: "45m ago", unread: true },
-  ]);
   const [reviews] = useState([
     { id: 1, passenger: "Adebayo O.", stars: 5, text: "Very smooth ride and polite driver.", date: "Jul 10" },
     { id: 2, passenger: "Esther A.", stars: 5, text: "On time and safe. Highly recommend!", date: "Jul 09" },
@@ -282,18 +278,16 @@ function DriverDashboard() {
                       Close
                     </button>
                   </div>
-                  {notifications.length === 0 && sampleNotifications.map((n) => (
-                    <div key={n.id} className={`notif-item ${n.unread ? "unread" : ""}`}>
-                      <p>{n.text}</p>
-                      <small>{n.time}</small>
-                    </div>
-                  ))}
-                  {notifications.map((n) => (
-                    <div key={n.id} className={`notif-item ${n.read ? "" : "unread"}`}>
-                      <p><strong>{n.title}</strong> — {n.message}</p>
-                      <small>{n.createdAt?.toDate ? n.createdAt.toDate().toLocaleString() : n.createdAt || ""}</small>
-                    </div>
-                  ))}
+                  {notifications.length === 0 ? (
+                    <p className="empty-note">No notifications yet.</p>
+                  ) : (
+                    notifications.map((n) => (
+                      <div key={n.id} className={`notif-item ${n.read ? "" : "unread"}`}>
+                        <p><strong>{n.title}</strong> — {n.message}</p>
+                        <small>{n.createdAt?.toDate ? n.createdAt.toDate().toLocaleString() : n.createdAt || ""}</small>
+                      </div>
+                    ))
+                  )}
                 </div>
               )}
             </div>
