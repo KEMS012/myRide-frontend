@@ -119,7 +119,7 @@ export async function createRide({ userId, from, to, type, scheduledAt, riderNam
     rideFare: rideFare || "₦1,200",
     amount: amount || null,
     paymentStatus: paymentStatus || "paid",
-    status: "requested",
+    status: paymentStatus === "pending" ? "pending_payment" : "requested",
     scheduledAt: scheduledAt || null,
     createdAt: serverTimestamp(),
   };

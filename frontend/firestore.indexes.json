@@ -4,64 +4,64 @@
       "collectionGroup": "rides",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "userId", "arrayConfig": "CONTAINS" },
-        { "fieldPath": "createdAt", "arrayConfig": "CONTAINS" }
+        { "fieldPath": "userId", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
       ]
     },
     {
       "collectionGroup": "rides",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "driverId", "arrayConfig": "CONTAINS" },
-        { "fieldPath": "createdAt", "arrayConfig": "CONTAINS" }
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "ASCENDING" }
       ]
     },
     {
       "collectionGroup": "rides",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "status", "arrayConfig": "CONTAINS" },
-        { "fieldPath": "createdAt", "arrayConfig": "CONTAINS" }
+        { "fieldPath": "driverId", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
       ]
     },
     {
       "collectionGroup": "schedules",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "userId", "arrayConfig": "CONTAINS" },
-        { "fieldPath": "datetime", "arrayConfig": "CONTAINS" }
+        { "fieldPath": "userId", "order": "ASCENDING" },
+        { "fieldPath": "datetime", "order": "ASCENDING" }
       ]
     },
     {
       "collectionGroup": "schedules",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "status", "arrayConfig": "CONTAINS" },
-        { "fieldPath": "datetime", "arrayConfig": "CONTAINS" }
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "datetime", "order": "ASCENDING" }
       ]
     },
     {
       "collectionGroup": "fixedRides",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "userId", "arrayConfig": "CONTAINS" },
-        { "fieldPath": "status", "arrayConfig": "CONTAINS" }
+        { "fieldPath": "userId", "order": "ASCENDING" },
+        { "fieldPath": "status", "order": "ASCENDING" }
       ]
     },
     {
       "collectionGroup": "notifications",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "recipientId", "arrayConfig": "CONTAINS" },
-        { "fieldPath": "createdAt", "arrayConfig": "CONTAINS" }
+        { "fieldPath": "recipientId", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
       ]
     },
     {
       "collectionGroup": "users",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "role", "arrayConfig": "CONTAINS" },
-        { "fieldPath": "status", "arrayConfig": "CONTAINS" }
+        { "fieldPath": "role", "order": "ASCENDING" },
+        { "fieldPath": "status", "order": "ASCENDING" }
       ]
     }
   ],

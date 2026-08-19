@@ -458,6 +458,11 @@
   color: #e0533d;
 }
 
+.status.pending {
+  background: #fff7ed;
+  color: #c2410c;
+}
+
 
 .upcoming-item {
   display: flex;

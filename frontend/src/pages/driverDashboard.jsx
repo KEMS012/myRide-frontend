@@ -475,8 +475,8 @@ function DriverDashboard() {
                         <span>{t.createdAt?.toDate ? t.createdAt.toDate().toLocaleDateString() : "—"}</span>
                     <span className="fare">{t.fare}</span>
                     <span>
-                      <em className={`status ${t.status === "Completed" ? "done" : t.status === "accepted" ? "warn" : t.status === "rejected" ? "cancel" : "pending"}`}>
-                        {t.status}
+                      <em className={`status ${t.status === "Completed" ? "done" : t.status === "accepted" ? "warn" : t.status === "rejected" ? "cancel" : t.status === "pending_payment" ? "pending" : "pending"}`}>
+                        {t.status === "pending_payment" ? "Awaiting Payment" : t.status}
                       </em>
                       {t.status === "accepted" && (
                         <button className="ghost-btn small" style={{ marginLeft: 8 }} onClick={() => completeRide(t.id)}>

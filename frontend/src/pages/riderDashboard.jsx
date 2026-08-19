@@ -431,6 +431,9 @@ function RiderDashboard() {
           type: "new_booking",
         });
         showToast(`Ride confirmed from ${ride.from} to ${ride.to}. Driver ${driverName} assigned.`);
+      } else {
+        await updateDoc(docRef("rides", ride.id), { status: "requested" });
+        showToast("Payment successful! Looking for a driver.");
       }
       await updateInvoiceStatus(invoice.id, "paid");
       showToast("Payment successful! Your ride is confirmed.");
@@ -959,10 +962,10 @@ function RiderDashboard() {
                       <span>
                         <em
                           className={`status ${
-                            t.status === "Completed" ? "done" : t.status === "accepted" ? "warn" : t.status === "rejected" || t.status === "cancelled" ? "cancel" : "pending"
+                            t.status === "Completed" ? "done" : t.status === "accepted" ? "warn" : t.status === "rejected" || t.status === "cancelled" ? "cancel" : t.status === "pending_payment" ? "pending" : "pending"
                           }`}
                         >
-                          {t.status}
+                          {t.status === "pending_payment" ? "Awaiting Payment" : t.status}
                         </em>
                       </span>
                   </div>

@@ -647,6 +647,10 @@
     color: #cbd5e1;
   }
 
+  .status.pending {
+    color: #fdba74;
+  }
+
   .upcoming-item {
     background: #1e293b;
     border-color: #334155;
