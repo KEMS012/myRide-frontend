@@ -120,8 +120,18 @@ export function AuthProvider({ children }) {
       return data.role;
     } catch (err) {
       console.error("Login error:", err);
-      if (err.code === "permission-denied" || err.message?.includes("permissions")) {
-        throw new Error("Database access denied. Please contact support or check Firestore rules.");
+      const code = err.code || "";
+      if (code.includes("user-not-found") || code.includes("wrong-password") || code.includes("invalid-credential")) {
+        throw new Error("Invalid email or password.");
+      }
+      if (code.includes("invalid-email")) {
+        throw new Error("Please enter a valid email.");
+      }
+      if (code.includes("too-many-requests")) {
+        throw new Error("Too many attempts. Try again later.");
+      }
+      if (code.includes("permission-denied") || err.message?.includes("permissions")) {
+        throw new Error("Database access denied. Please contact support.");
       }
       throw new Error(err.message || "Login failed. Please try again.");
     }

@@ -3,6 +3,7 @@ import admin from "firebase-admin";
 import { authenticateToken, optionalAuth } from "../middleware/auth.js";
 import { asyncHandler } from "../middleware/asyncHandler.js";
 import { validateRequired } from "../middleware/validate.js";
+import { getApiMessage } from "../utils/errors.js";
 
 const router = express.Router();
 
@@ -22,7 +23,7 @@ router.post("/", optionalAuth, validateRequired(["from", "to", "datetime", "type
     res.status(201).json({ id: ref.id });
   } catch (err) {
     console.error("Create schedule error:", err);
-    res.status(400).json({ error: err.message || "Failed to create schedule" });
+    res.status(400).json({ error: getApiMessage(err, "Failed to schedule ride. Please try again.") });
   }
 }));
 
@@ -37,7 +38,7 @@ router.get("/", optionalAuth, asyncHandler(async (req, res) => {
     res.json(schedules);
   } catch (err) {
     console.error("Get schedules error:", err);
-    res.status(500).json({ error: err.message || "Failed to fetch schedules" });
+    res.status(500).json({ error: getApiMessage(err, "Failed to load schedules. Please try again.") });
   }
 }));
 
@@ -47,7 +48,7 @@ router.delete("/:id", authenticateToken, asyncHandler(async (req, res) => {
     res.json({ message: "Schedule deleted" });
   } catch (err) {
     console.error("Delete schedule error:", err);
-    res.status(400).json({ error: err.message || "Delete failed" });
+    res.status(400).json({ error: getApiMessage(err, "Failed to cancel schedule. Please try again.") });
   }
 }));
 

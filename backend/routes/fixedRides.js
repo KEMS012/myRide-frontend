@@ -3,6 +3,7 @@ import admin from "firebase-admin";
 import { optionalAuth } from "../middleware/auth.js";
 import { asyncHandler } from "../middleware/asyncHandler.js";
 import { validateRequired } from "../middleware/validate.js";
+import { getApiMessage } from "../utils/errors.js";
 
 const router = express.Router();
 
@@ -21,7 +22,7 @@ router.post("/", optionalAuth, validateRequired(["userId", "driverId", "plan", "
     res.status(201).json({ id: ref.id, userId, driverId, plan, schedule, status: "active" });
   } catch (err) {
     console.error("Create fixed ride error:", err);
-    res.status(400).json({ error: err.message || "Failed to create fixed ride" });
+    res.status(400).json({ error: getApiMessage(err, "Failed to create fixed ride. Please try again.") });
   }
 }));
 
@@ -30,7 +31,7 @@ router.get("/", optionalAuth, asyncHandler(async (req, res) => {
     const { userId } = req.query;
     const uid = userId || req.user?.uid;
     if (!uid) {
-      return res.status(401).json({ error: "Unauthorized" });
+      return res.status(401).json({ error: "Please sign in to continue." });
     }
     const q = admin.firestore().collection("fixedRides").where("userId", "==", uid).where("status", "==", "active");
     const snap = await q.get();
@@ -38,7 +39,7 @@ router.get("/", optionalAuth, asyncHandler(async (req, res) => {
     res.json(fixedRides);
   } catch (err) {
     console.error("Get fixed rides error:", err);
-    res.status(500).json({ error: err.message || "Failed to fetch fixed rides" });
+    res.status(500).json({ error: getApiMessage(err, "Failed to load fixed rides. Please try again.") });
   }
 }));
 

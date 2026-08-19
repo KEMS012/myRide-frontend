@@ -3,6 +3,7 @@ import cors from "cors";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import dotenv from "dotenv";
+import { getApiMessage } from "./utils/errors.js";
 import authRoutes from "./routes/auth.js";
 import userRoutes from "./routes/users.js";
 import rideRoutes from "./routes/rides.js";
@@ -80,7 +81,8 @@ app.use((req, res) => {
 
 app.use((err, req, res, next) => {
   console.error("Server error:", err);
-  res.status(err.status || 500).json({ error: err.message || "Internal server error" });
+  const status = err.status || 500;
+  res.status(status).json({ error: getApiMessage(err, "Something went wrong. Please try again or contact support.") });
 });
 
 const PORT = Number(process.env.PORT || 5000);

@@ -67,6 +67,7 @@ function DriverDashboard() {
   const [scheduled, setScheduled] = useState([]);
   const [myTrips, setMyTrips] = useState([]);
   const [usersWithLocation, setUsersWithLocation] = useState([]);
+  const [dataError, setDataError] = useState("");
   const [toast, setToast] = useState("");
   const [confirm, setConfirm] = useState(null);
   const [notifications, setNotifications] = useState([]);
@@ -95,8 +96,12 @@ function DriverDashboard() {
 
   useEffect(() => {
     if (!user) return;
-    const unsubMyTrips = onRidesForDriverSnapshot(user.uid, (items) => setMyTrips(items));
-    const unsubRequests = onAvailableRidesSnapshot((items) => setRequests(items));
+    const unsubMyTrips = onRidesForDriverSnapshot(user.uid, (items) => setMyTrips(items), (err) => {
+      setDataError("Unable to load your trips. Please check your connection or contact support if this persists.");
+    });
+    const unsubRequests = onAvailableRidesSnapshot((items) => setRequests(items), (err) => {
+      setDataError("Unable to load incoming ride requests. Please check your connection or contact support if this persists.");
+    });
     const unsubUsers = onUsersSnapshot((items) => {
       setUsersWithLocation(items.filter((u) => u.locationSharingEnabled && u.area));
     });
@@ -304,6 +309,11 @@ function DriverDashboard() {
         </header>
 
         <main className="dashboard-content">
+          {dataError && (
+            <div style={{ background: "#fee2e2", color: "#b91c1c", padding: "12px 16px", borderRadius: "8px", marginBottom: "16px" }}>
+              {dataError}
+            </div>
+          )}
           {active === "overview" && (
             <>
               <section className={`status-banner ${online ? "on" : "off"}`}>

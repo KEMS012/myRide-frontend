@@ -3,6 +3,7 @@ import admin from "firebase-admin";
 import { authenticateToken, optionalAuth } from "../middleware/auth.js";
 import { asyncHandler } from "../middleware/asyncHandler.js";
 import { validateRequired } from "../middleware/validate.js";
+import { getApiMessage } from "../utils/errors.js";
 
 const router = express.Router();
 
@@ -27,7 +28,7 @@ router.post("/", optionalAuth, validateRequired(["from", "to", "type"]), asyncHa
     res.status(201).json({ id: rideRef.id, ...data });
   } catch (err) {
     console.error("Create ride error:", err);
-    res.status(400).json({ error: err.message || "Failed to create ride" });
+    res.status(400).json({ error: getApiMessage(err, "Failed to create ride. Please try again.") });
   }
 }));
 
@@ -43,7 +44,7 @@ router.get("/", optionalAuth, asyncHandler(async (req, res) => {
     res.json(rides);
   } catch (err) {
     console.error("Get rides error:", err);
-    res.status(500).json({ error: err.message || "Failed to fetch rides" });
+    res.status(500).json({ error: getApiMessage(err, "Failed to fetch rides. Please try again.") });
   }
 }));
 
@@ -56,7 +57,7 @@ router.get("/:id", authenticateToken, asyncHandler(async (req, res) => {
     res.json({ id: snap.id, ...snap.data() });
   } catch (err) {
     console.error("Get ride error:", err);
-    res.status(500).json({ error: err.message || "Failed to fetch ride" });
+    res.status(500).json({ error: getApiMessage(err, "Failed to fetch ride. Please try again.") });
   }
 }));
 
@@ -71,7 +72,7 @@ router.put("/:id/status", authenticateToken, asyncHandler(async (req, res) => {
     res.json({ message: "Ride status updated" });
   } catch (err) {
     console.error("Update ride status error:", err);
-    res.status(400).json({ error: err.message || "Update failed" });
+    res.status(400).json({ error: getApiMessage(err, "Failed to update ride status. Please try again.") });
   }
 }));
 
@@ -80,7 +81,7 @@ router.post("/:id/accept", authenticateToken, asyncHandler(async (req, res) => {
     const { driverId, driverName } = req.body;
     const activeRides = await admin.firestore().collection("rides").where("driverId", "==", driverId).where("status", "in", ["requested", "accepted"]).get();
     if (!activeRides.empty) {
-      return res.status(409).json({ error: "Driver is already assigned to another active ride." });
+      return res.status(409).json({ error: "This driver is already assigned to another active ride." });
     }
     await admin.firestore().collection("rides").doc(req.params.id).update({
       status: "accepted",
@@ -92,7 +93,7 @@ router.post("/:id/accept", authenticateToken, asyncHandler(async (req, res) => {
     res.json({ message: "Ride accepted" });
   } catch (err) {
     console.error("Accept ride error:", err);
-    res.status(400).json({ error: err.message || "Accept failed" });
+    res.status(400).json({ error: getApiMessage(err, "Failed to accept ride. Please try again.") });
   }
 }));
 
@@ -108,7 +109,7 @@ router.post("/:id/reject", authenticateToken, asyncHandler(async (req, res) => {
     res.json({ message: "Ride rejected" });
   } catch (err) {
     console.error("Reject ride error:", err);
-    res.status(400).json({ error: err.message || "Reject failed" });
+    res.status(400).json({ error: getApiMessage(err, "Failed to reject ride. Please try again.") });
   }
 }));
 
@@ -134,7 +135,7 @@ router.post("/:id/complete", authenticateToken, asyncHandler(async (req, res) =>
     res.json({ message: "Ride completed", reward: { points: newPoints, ridesCount: newRides, tier: newTier } });
   } catch (err) {
     console.error("Complete ride error:", err);
-    res.status(400).json({ error: err.message || "Complete failed" });
+    res.status(400).json({ error: getApiMessage(err, "Failed to complete ride. Please try again.") });
   }
 }));
 
@@ -144,7 +145,7 @@ router.delete("/:id", authenticateToken, asyncHandler(async (req, res) => {
     res.json({ message: "Ride deleted" });
   } catch (err) {
     console.error("Delete ride error:", err);
-    res.status(400).json({ error: err.message || "Delete failed" });
+    res.status(400).json({ error: getApiMessage(err, "Failed to delete ride. Please try again.") });
   }
 }));
 

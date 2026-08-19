@@ -2,6 +2,7 @@ import express from "express";
 import admin from "firebase-admin";
 import { authenticateToken } from "../middleware/auth.js";
 import { asyncHandler } from "../middleware/asyncHandler.js";
+import { getApiMessage } from "../utils/errors.js";
 
 const router = express.Router();
 
@@ -12,7 +13,7 @@ router.get("/", authenticateToken, asyncHandler(async (req, res) => {
     res.json(users);
   } catch (err) {
     console.error("Get users error:", err);
-    res.status(500).json({ error: err.message || "Failed to fetch users" });
+    res.status(500).json({ error: getApiMessage(err, "Failed to load users. Please try again.") });
   }
 }));
 
@@ -25,7 +26,7 @@ router.get("/:id", authenticateToken, asyncHandler(async (req, res) => {
     res.json({ id: snap.id, ...snap.data() });
   } catch (err) {
     console.error("Get user error:", err);
-    res.status(500).json({ error: err.message || "Failed to fetch user" });
+    res.status(500).json({ error: getApiMessage(err, "Failed to load user. Please try again.") });
   }
 }));
 
@@ -37,7 +38,7 @@ router.put("/:id", authenticateToken, asyncHandler(async (req, res) => {
     res.json({ id: snap.id, ...snap.data() });
   } catch (err) {
     console.error("Update user error:", err);
-    res.status(400).json({ error: err.message || "Update failed" });
+    res.status(400).json({ error: getApiMessage(err, "Failed to update user. Please try again.") });
   }
 }));
 
@@ -47,7 +48,7 @@ router.delete("/:id", authenticateToken, asyncHandler(async (req, res) => {
     res.json({ message: "User deleted" });
   } catch (err) {
     console.error("Delete user error:", err);
-    res.status(400).json({ error: err.message || "Delete failed" });
+    res.status(400).json({ error: getApiMessage(err, "Failed to delete user. Please try again.") });
   }
 }));
 

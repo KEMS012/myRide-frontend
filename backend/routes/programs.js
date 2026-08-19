@@ -2,6 +2,7 @@ import express from "express";
 import admin from "firebase-admin";
 import { authenticateToken } from "../middleware/auth.js";
 import { asyncHandler } from "../middleware/asyncHandler.js";
+import { getApiMessage } from "../utils/errors.js";
 
 const router = express.Router();
 
@@ -13,7 +14,7 @@ router.post("/", authenticateToken, asyncHandler(async (req, res) => {
     res.status(201).json({ id: ref.id, ...data });
   } catch (err) {
     console.error("Create program error:", err);
-    res.status(400).json({ error: err.message || "Failed to create program" });
+    res.status(400).json({ error: getApiMessage(err, "Failed to create program. Please try again.") });
   }
 }));
 
@@ -24,7 +25,7 @@ router.get("/", authenticateToken, asyncHandler(async (req, res) => {
     res.json(programs);
   } catch (err) {
     console.error("Get programs error:", err);
-    res.status(500).json({ error: err.message || "Failed to fetch programs" });
+    res.status(500).json({ error: getApiMessage(err, "Failed to load programs. Please try again.") });
   }
 }));
 
@@ -35,7 +36,7 @@ router.put("/:id/status", authenticateToken, asyncHandler(async (req, res) => {
     res.json({ message: "Program status updated" });
   } catch (err) {
     console.error("Update program status error:", err);
-    res.status(400).json({ error: err.message || "Update failed" });
+    res.status(400).json({ error: getApiMessage(err, "Failed to update program. Please try again.") });
   }
 }));
 

@@ -3,6 +3,7 @@ import admin from "firebase-admin";
 import { authenticateToken } from "../middleware/auth.js";
 import { asyncHandler } from "../middleware/asyncHandler.js";
 import { validateRequired } from "../middleware/validate.js";
+import { getApiMessage } from "../utils/errors.js";
 
 const router = express.Router();
 
@@ -24,7 +25,7 @@ router.post("/signup", validateRequired(["name", "email", "password"]), asyncHan
     res.status(201).json({ uid: userRecord.uid, ...profileData });
   } catch (err) {
     console.error("Signup error:", err);
-    res.status(400).json({ error: err.message || "Sign up failed" });
+    res.status(400).json({ error: getApiMessage(err, "Sign up failed. Please check your details and try again.") });
   }
 }));
 
@@ -40,7 +41,7 @@ router.post("/login", validateRequired(["email"]), asyncHandler(async (req, res)
     res.json({ uid: userRecord.uid, ...data });
   } catch (err) {
     console.error("Login error:", err);
-    res.status(401).json({ error: err.message || "Login failed" });
+    res.status(401).json({ error: getApiMessage(err, "Login failed. Please check your email and password.") });
   }
 }));
 
@@ -64,7 +65,7 @@ router.post("/google", validateRequired(["idToken"]), asyncHandler(async (req, r
     res.json(data);
   } catch (err) {
     console.error("Google sign-in error:", err);
-    res.status(401).json({ error: err.message || "Google sign-in failed" });
+    res.status(401).json({ error: getApiMessage(err, "Google sign-in failed. Please try again.") });
   }
 }));
 
@@ -76,7 +77,7 @@ router.post("/reset-password", validateRequired(["email"]), asyncHandler(async (
     res.json({ message: "Password reset email sent" });
   } catch (err) {
     console.error("Reset password error:", err);
-    res.status(400).json({ error: err.message || "Password reset failed" });
+    res.status(400).json({ error: getApiMessage(err, "Password reset failed. Please check the email and try again.") });
   }
 }));
 
@@ -86,7 +87,7 @@ router.post("/logout", authenticateToken, asyncHandler(async (req, res) => {
     res.json({ message: "Logged out successfully" });
   } catch (err) {
     console.error("Logout error:", err);
-    res.status(400).json({ error: err.message || "Logout failed" });
+    res.status(400).json({ error: getApiMessage(err, "Logout failed. Please try again.") });
   }
 }));
 
@@ -99,7 +100,7 @@ router.get("/me", authenticateToken, asyncHandler(async (req, res) => {
     res.json({ id: snap.id, ...snap.data() });
   } catch (err) {
     console.error("Get profile error:", err);
-    res.status(500).json({ error: err.message || "Failed to load profile" });
+    res.status(500).json({ error: getApiMessage(err, "Failed to load profile. Please try again.") });
   }
 }));
 
@@ -111,7 +112,7 @@ router.put("/me", authenticateToken, asyncHandler(async (req, res) => {
     res.json({ id: snap.id, ...snap.data() });
   } catch (err) {
     console.error("Update profile error:", err);
-    res.status(400).json({ error: err.message || "Update failed" });
+    res.status(400).json({ error: getApiMessage(err, "Update failed. Please try again.") });
   }
 }));
 

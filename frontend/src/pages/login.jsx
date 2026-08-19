@@ -143,13 +143,23 @@ function Login() {
 import { getUserMessage } from "../utils/errors";
 
 function friendlyError(err) {
-  const code = err?.code || "";
-  if (code.includes("user-not-found") || code.includes("wrong-password") || code.includes("invalid-credential"))
+  const msg = err?.message || "";
+  if (msg.includes("Invalid email or password.") || msg.includes("invalid-credential") || msg.includes("wrong-password") || msg.includes("user-not-found")) {
     return "Invalid email or password.";
-  if (code.includes("invalid-email")) return "Please enter a valid email.";
-  if (code.includes("too-many-requests")) return "Too many attempts. Try again later.";
-  if (code.includes("not-configured")) return "Firebase is not configured yet.";
-  return getUserMessage(err, "Login failed. Please try again.");
+  }
+  if (msg.includes("Please enter a valid email.") || msg.includes("invalid-email")) {
+    return "Please enter a valid email.";
+  }
+  if (msg.includes("Too many attempts.")) {
+    return "Too many attempts. Try again later.";
+  }
+  if (msg.includes("No profile found.")) {
+    return "No profile found. Please sign up first.";
+  }
+  if (msg.includes("Database access denied.")) {
+    return "Database access denied. Please contact support.";
+  }
+  return msg || "Login failed. Please try again.";
 }
 
 export default Login;

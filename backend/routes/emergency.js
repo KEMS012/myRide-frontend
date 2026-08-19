@@ -2,6 +2,7 @@ import express from "express";
 import admin from "firebase-admin";
 import { authenticateToken } from "../middleware/auth.js";
 import { asyncHandler } from "../middleware/asyncHandler.js";
+import { getApiMessage } from "../utils/errors.js";
 
 const router = express.Router();
 
@@ -12,7 +13,7 @@ router.post("/", authenticateToken, asyncHandler(async (req, res) => {
 
     const userSnap = await admin.firestore().collection("users").doc(uid).get();
     if (!userSnap.exists) {
-      return res.status(404).json({ error: "User profile not found." });
+      return res.status(404).json({ error: "Your profile was not found. Please sign in again." });
     }
     const user = userSnap.data();
 
@@ -54,7 +55,7 @@ router.post("/", authenticateToken, asyncHandler(async (req, res) => {
     res.status(201).json({ message: "Emergency alert sent. Admin has been notified.", alertId: alertRef.id });
   } catch (err) {
     console.error("Emergency alert error:", err);
-    res.status(500).json({ error: "Failed to send emergency alert." });
+    res.status(500).json({ error: getApiMessage(err, "Failed to send emergency alert. Please try again.") });
   }
 }));
 

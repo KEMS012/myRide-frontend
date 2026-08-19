@@ -2,6 +2,7 @@ import express from "express";
 import admin from "firebase-admin";
 import { authenticateToken } from "../middleware/auth.js";
 import { asyncHandler } from "../middleware/asyncHandler.js";
+import { getApiMessage } from "../utils/errors.js";
 
 const router = express.Router();
 
@@ -12,7 +13,7 @@ router.get("/:userId", authenticateToken, asyncHandler(async (req, res) => {
     res.json(data || { userId: req.params.userId, points: 0, ridesCount: 0, tier: "Bronze" });
   } catch (err) {
     console.error("Get reward error:", err);
-    res.status(500).json({ error: err.message || "Failed to fetch reward" });
+    res.status(500).json({ error: getApiMessage(err, "Failed to load rewards. Please try again.") });
   }
 }));
 
@@ -29,7 +30,7 @@ router.post("/", authenticateToken, asyncHandler(async (req, res) => {
     res.json({ userId, points: newPoints, ridesCount: newRides, tier: newTier });
   } catch (err) {
     console.error("Create reward error:", err);
-    res.status(400).json({ error: err.message || "Failed to create reward" });
+    res.status(400).json({ error: getApiMessage(err, "Failed to update rewards. Please try again.") });
   }
 }));
 

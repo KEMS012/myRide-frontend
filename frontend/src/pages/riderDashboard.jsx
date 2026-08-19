@@ -132,9 +132,13 @@ function RiderDashboard() {
       async function load() {
         try {
           setDataError("");
-     const unsubRides = onRidesForUserSnapshot(user.uid, (items) => {
-       if (active) setAllTrips(items);
-     });
+      const unsubRides = onRidesForUserSnapshot(user.uid, (items) => {
+        if (active) setAllTrips(items);
+      }, (err) => {
+        if (active) {
+          setDataError("Unable to load your trips. Please check your internet connection or contact support if this persists.");
+        }
+      });
      const unsubNotifs = onNotificationsSnapshot(user.uid, (items) => {
        if (active) {
          setNotifications(items);
@@ -244,7 +248,7 @@ function RiderDashboard() {
       if (url) setAvatar(url);
       showToast("Profile picture updated.");
     } catch (err) {
-      showToast(getUserMessage(err, "Failed to upload profile picture."));
+      showToast(getUserMessage(err, "Unable to upload profile picture. Please try again."));
     }
     e.target.value = "";
   };
@@ -258,7 +262,7 @@ function RiderDashboard() {
       });
       showToast("Profile saved successfully.");
     } catch (err) {
-      showToast(getUserMessage(err, "Failed to save profile."));
+      showToast(getUserMessage(err, "Unable to save profile. Please check your connection and try again."));
     }
   };
 
@@ -328,7 +332,7 @@ function RiderDashboard() {
       setSupportMessage("");
       setTimeout(() => setSupportSent(false), 4000);
     } catch (err) {
-      showToast(getUserMessage(err, "Failed to submit support request."));
+      showToast(getUserMessage(err, "Unable to submit your support request right now. Please try again."));
     }
   };
 

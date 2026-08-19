@@ -2,6 +2,7 @@ import express from "express";
 import admin from "firebase-admin";
 import { authenticateToken } from "../middleware/auth.js";
 import { asyncHandler } from "../middleware/asyncHandler.js";
+import { getApiMessage } from "../utils/errors.js";
 
 const router = express.Router();
 
@@ -20,7 +21,7 @@ router.post("/partners", authenticateToken, asyncHandler(async (req, res) => {
     res.json({ message: "Seed data created", count: partners.length });
   } catch (err) {
     console.error("Seed error:", err);
-    res.status(400).json({ error: err.message || "Seeding failed" });
+    res.status(400).json({ error: getApiMessage(err, "Seeding failed. Please try again.") });
   }
 }));
 

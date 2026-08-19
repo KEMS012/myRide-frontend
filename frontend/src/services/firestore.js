@@ -41,23 +41,25 @@ export function onRidesSnapshot(listener) {
   return unsub;
 }
 
-export function onRidesForUserSnapshot(uid, listener) {
+export function onRidesForUserSnapshot(uid, listener, onError) {
   const q = query(col("rides"), where("userId", "==", uid), orderBy("createdAt", "desc"));
   const unsub = onSnapshot(q, (snap) => {
     listener(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
   }, (err) => {
     console.error("onRidesForUserSnapshot error:", err);
+    onError?.(err);
     listener([]);
   });
   return unsub;
 }
 
-export function onRidesForDriverSnapshot(uid, listener) {
+export function onRidesForDriverSnapshot(uid, listener, onError) {
   const q = query(col("rides"), where("driverId", "==", uid), orderBy("createdAt", "desc"));
   const unsub = onSnapshot(q, (snap) => {
     listener(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
   }, (err) => {
     console.error("onRidesForDriverSnapshot error:", err);
+    onError?.(err);
     listener([]);
   });
   return unsub;
@@ -74,12 +76,13 @@ export function onPartnersSnapshot(listener) {
   return unsub;
 }
 
-export function onAvailableRidesSnapshot(listener) {
+export function onAvailableRidesSnapshot(listener, onError) {
   const q = query(col("rides"), where("status", "==", "requested"), orderBy("createdAt", "asc"));
   const unsub = onSnapshot(q, (snap) => {
     listener(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
   }, (err) => {
     console.error("onAvailableRidesSnapshot error:", err);
+    onError?.(err);
     listener([]);
   });
   return unsub;
@@ -374,3 +377,4 @@ export function onInvoicesSnapshot(listener) {
   });
   return unsub;
 }
+

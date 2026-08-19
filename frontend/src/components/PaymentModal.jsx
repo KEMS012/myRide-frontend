@@ -34,6 +34,7 @@ export default function PaymentModal({ open, onClose, onSuccess, rideDetails }) 
                 },
               });
               onSuccess?.(response.reference);
+              setProcessing(false);
             } catch (err) {
               setError(getUserMessage(err, "Payment verification failed. Please try again or contact support."));
               setProcessing(false);

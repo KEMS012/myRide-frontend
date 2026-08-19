@@ -12,6 +12,12 @@ const ERROR_MAP = {
   "invalid-argument": "Invalid input. Please check the information and try again.",
   "unauthenticated": "Please sign in to continue.",
   "internal": "Something went wrong on our end. Please try again or contact support.",
+  "user-not-found": "Invalid email or password.",
+  "wrong-password": "Invalid email or password.",
+  "invalid-credential": "Invalid email or password.",
+  "invalid-email": "Please enter a valid email.",
+  "too-many-requests": "Too many attempts. Try again later.",
+  "not-configured": "Firebase is not configured yet.",
 };
 
 export function getUserMessage(error, fallback = "Something went wrong. Please try again.") {
@@ -28,6 +34,9 @@ export function getUserMessage(error, fallback = "Something went wrong. Please t
   }
   if (message.includes("network") || message.includes("fetch")) {
     return "Network error. Please check your internet connection.";
+  }
+  if (message.includes("cors")) {
+    return "Unable to connect to the server. Please try again later.";
   }
   return fallback;
 }
