@@ -76,5 +76,10 @@ service cloud.firestore {
       allow read: if isAuthed();
       allow write: if isAdmin();
     }
+
+    match /invoices/{invoiceId} {
+      allow read: if isAuthed() && (resource.data.userId == request.auth.uid || isAdmin() || isPartner());
+      allow write: if isAdmin();
+    }
   }
 }

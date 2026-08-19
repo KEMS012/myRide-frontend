@@ -17,22 +17,18 @@ export async function authenticateToken(req, res, next) {
   }
 }
 
-export function optionalAuth(req, res, next) {
+export async function optionalAuth(req, res, next) {
   const authHeader = req.headers.authorization;
-  if (authHeader && authHeader.startsWith("Bearer ")) {
-    const idToken = authHeader.split("Bearer ")[1];
-    admin
-      .auth()
-      .verifyIdToken(idToken)
-      .then((decodedToken) => {
-        req.user = decodedToken;
-        next();
-      })
-      .catch((err) => {
-        console.error("Optional auth failed:", err);
-        next();
-      });
-  } else {
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return next();
+  }
+  const idToken = authHeader.split("Bearer ")[1];
+  try {
+    const decodedToken = await admin.auth().verifyIdToken(idToken);
+    req.user = decodedToken;
+    next();
+  } catch (err) {
+    console.error("Optional auth failed:", err);
     next();
   }
 }

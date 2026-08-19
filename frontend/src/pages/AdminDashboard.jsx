@@ -12,6 +12,7 @@ import {
   FaSackDollar,
   FaIdCard,
   FaChartLine,
+  FaMoneyBill,
   FaBell,
   FaMagnifyingGlass,
   FaArrowRight,
@@ -46,6 +47,9 @@ import {
   onNotificationsSnapshot,
   createNotification,
   markNotificationRead,
+  getInvoices,
+  onInvoicesSnapshot,
+  updateInvoiceStatus,
 } from "../services/firestore";
 
 const normalizeStatus = (status) => {
@@ -60,6 +64,7 @@ const navItems = [
   { id: "rides", label: "Rides", icon: <FaRoute /> },
   { id: "partners", label: "Partners", icon: <FaHandshake /> },
   { id: "verification", label: "Verification", icon: <FaIdCard /> },
+  { id: "payments", label: "Payments", icon: <FaMoneyBill /> },
   { id: "reports", label: "Reports", icon: <FaChartLine /> },
   { id: "settings", label: "Settings", icon: <FaGear /> },
 ];
@@ -76,6 +81,7 @@ function AdminDashboard() {
   const [partners, setPartners] = useState([]);
   const [verifications, setVerifications] = useState([]);
   const [rides, setRides] = useState([]);
+  const [invoices, setInvoices] = useState([]);
   const [toast, setToast] = useState("");
   const [confirm, setConfirm] = useState(null);
   const [notifications, setNotifications] = useState([]);
@@ -130,7 +136,7 @@ function AdminDashboard() {
   };
 
   useEffect(() => {
-    let unsubUsers, unsubRides, unsubPartners, unsubNotifs;
+    let unsubUsers, unsubRides, unsubPartners, unsubNotifs, unsubInvoices;
 
     async function setup() {
       try {
@@ -176,6 +182,10 @@ function AdminDashboard() {
           setUnreadNotifCount(items.filter((n) => !n.read).length);
         });
 
+        unsubInvoices = onInvoicesSnapshot((items) => {
+          setInvoices(items);
+        });
+
       } catch (err) {
         console.error("Admin real-time setup error:", err);
         setLoadError(err?.message || "Failed to load admin data.");
@@ -204,6 +214,7 @@ function AdminDashboard() {
       unsubRides?.();
       unsubPartners?.();
       unsubNotifs?.();
+      unsubInvoices?.();
     };
   }, []);
 
@@ -284,6 +295,26 @@ function AdminDashboard() {
     } catch (err) {
       console.error("verify error:", err);
       showToast("Failed to verify driver.");
+    }
+  };
+
+  const approvePayment = async (invoiceId) => {
+    try {
+      await updateInvoiceStatus(invoiceId, "approved");
+      showToast("Payment approved.");
+    } catch (err) {
+      console.error("approvePayment error:", err);
+      showToast("Failed to approve payment.");
+    }
+  };
+
+  const rejectPayment = async (invoiceId) => {
+    try {
+      await updateInvoiceStatus(invoiceId, "rejected");
+      showToast("Payment rejected.");
+    } catch (err) {
+      console.error("rejectPayment error:", err);
+      showToast("Failed to reject payment.");
     }
   };
 
@@ -739,6 +770,51 @@ function AdminDashboard() {
                     <span className="row-actions">
                       <button className="ghost-btn" onClick={() => showToast(`Viewing ${p.name}.`)}><FaEye /></button>
                       <button className="ghost-btn danger" onClick={() => removeItem(partners, setPartners, p.id, "Partner")}><FaTrash /></button>
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {active === "payments" && (
+            <section className="panel">
+              <div className="panel-head">
+                <h3>Payment Approvals</h3>
+              </div>
+              <div className="trips-table">
+                <div className="trips-table-head">
+                  <span>Invoice ID</span>
+                  <span>User</span>
+                  <span>Amount</span>
+                  <span>Ride</span>
+                  <span>Status</span>
+                  <span>Actions</span>
+                </div>
+                {invoices.length === 0 && (
+                  <p className="empty-note">No invoices yet.</p>
+                )}
+                {invoices.map((inv) => (
+                  <div className="trips-table-row" key={inv.id}>
+                    <span className="trip-id">{inv.id}</span>
+                    <span>{inv.userId}</span>
+                    <span>₦{Number(inv.amount || 0).toLocaleString()}</span>
+                    <span>{inv.details?.from || "—"} → {inv.details?.to || "—"}</span>
+                    <span>
+                      <em className={`status ${inv.status === "paid" || inv.status === "approved" ? "done" : inv.status === "rejected" ? "cancel" : "warn"}`}>
+                        {inv.status}
+                      </em>
+                    </span>
+                    <span className="row-actions">
+                      {inv.status === "pending" && (
+                        <>
+                          <button className="qb-btn small" onClick={() => approvePayment(inv.id)}><FaCheck /> Approve</button>
+                          <button className="ghost-btn danger" onClick={() => rejectPayment(inv.id)}><FaBan /> Reject</button>
+                        </>
+                      )}
+                      {(inv.status === "approved" || inv.status === "rejected" || inv.status === "paid") && (
+                        <span className="muted">Processed</span>
+                      )}
                     </span>
                   </div>
                 ))}

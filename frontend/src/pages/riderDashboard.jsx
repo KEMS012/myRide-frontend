@@ -412,7 +412,7 @@ function RiderDashboard() {
         console.error("Failed to refresh schedules:", err);
       });
     } catch (err) {
-      showToast(err.message || "Booking failed.");
+      showToast(getUserMessage(err, "Booking failed."));
     }
   };
 
@@ -436,7 +436,6 @@ function RiderDashboard() {
         showToast("Payment successful! Looking for a driver.");
       }
       await updateInvoiceStatus(invoice.id, "paid");
-      showToast("Payment successful! Your ride is confirmed.");
       setPendingPayment(null);
     } catch (err) {
       showToast(err.message || "Payment confirmation failed.");

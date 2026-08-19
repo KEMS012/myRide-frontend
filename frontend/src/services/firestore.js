@@ -358,3 +358,19 @@ export async function getInvoicesForUser(uid) {
 export async function updateInvoiceStatus(invoiceId, status) {
   await updateDoc(docRef("invoices", invoiceId), { status, updatedAt: serverTimestamp() });
 }
+
+export async function getInvoices() {
+  const snap = await getDocs(query(col("invoices"), orderBy("createdAt", "desc")));
+  return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+}
+
+export function onInvoicesSnapshot(listener) {
+  const q = query(col("invoices"), orderBy("createdAt", "desc"));
+  const unsub = onSnapshot(q, (snap) => {
+    listener(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
+  }, (err) => {
+    console.error("onInvoicesSnapshot error:", err);
+    listener([]);
+  });
+  return unsub;
+}

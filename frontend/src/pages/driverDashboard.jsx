@@ -32,6 +32,7 @@ import {
   rejectRide,
   completeRide,
   getActiveSchedules,
+  getActiveRideForDriver,
   deleteDoc,
   docRef,
   onRidesForDriverSnapshot,
@@ -171,6 +172,11 @@ function DriverDashboard() {
 
   const acceptRequest = async (id) => {
     if (!user) return;
+    const activeRides = await getActiveRideForDriver(user.uid);
+    if (activeRides.length > 0) {
+      showToast("You already have an active ride. Complete it before accepting another.");
+      return;
+    }
     await acceptRide(id, user.uid, profile?.name);
     setRequests((prev) => prev.filter((r) => r.id !== id));
     showToast("Ride accepted — heading to passenger.");
