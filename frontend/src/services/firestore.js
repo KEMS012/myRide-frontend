@@ -105,7 +105,7 @@ export async function updateUser(uid, data) {
   await updateDoc(docRef("users", uid), data);
 }
 
-export async function createRide({ userId, from, to, type, scheduledAt, riderName, rideFare }) {
+export async function createRide({ userId, from, to, type, scheduledAt, riderName, rideFare, paymentStatus, amount }) {
   const rideRef = doc(col("rides"));
   const data = {
     userId,
@@ -117,6 +117,8 @@ export async function createRide({ userId, from, to, type, scheduledAt, riderNam
     type,
     fare: rideFare || "₦1,200",
     rideFare: rideFare || "₦1,200",
+    amount: amount || null,
+    paymentStatus: paymentStatus || "paid",
     status: "requested",
     scheduledAt: scheduledAt || null,
     createdAt: serverTimestamp(),
@@ -173,6 +175,12 @@ export async function completeRide(rideId) {
     await updateRideStatus(rideId, "completed", { completedAt: serverTimestamp() });
     await createReward({ userId: ride.userId, points: 100, ridesCount: 1 });
   }
+}
+
+export async function getActiveRideForDriver(driverId) {
+  const q = query(col("rides"), where("driverId", "==", driverId), where("status", "in", ["requested", "accepted"]), orderBy("createdAt", "desc"));
+  const snap = await getDocs(q);
+  return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
 }
 
 export async function createSchedule({ userId, from, to, datetime, type }) {
@@ -296,10 +304,10 @@ export async function getRides() {
 
 export async function seedInitialData() {
   const partners = [
-    { name: "LAUTECH", type: "School", area: "LAUTECH", riders: 880, rides: 3100, contact: "Dean of Students", status: "Active" },
-    { name: "Baptist High School", type: "School", area: "Takie", riders: 410, rides: 1420, contact: "Mr. K. Adeyemi", status: "Active" },
-    { name: "CAC Takie", type: "Church", area: "Takie", riders: 320, rides: 1120, contact: "Pastor D. Oladele", status: "Active" },
-    { name: "Winners Chapel, Owode", type: "Church", area: "Owode", riders: 260, rides: 860, contact: "Pastor M. Thomas", status: "Active" },
+    { name: "LAUTECH", type: "School", area: "LAUTECH", riders: 880, rides: 3100, contact: "Dean of Students", status: "Active", code: "LAUTECH-2026" },
+    { name: "Baptist High School", type: "School", area: "Takie", riders: 410, rides: 1420, contact: "Mr. K. Adeyemi", status: "Active", code: "BHS-2026" },
+    { name: "CAC Takie", type: "Church", area: "Takie", riders: 320, rides: 1120, contact: "Pastor D. Oladele", status: "Active", code: "CAC-2026" },
+    { name: "Winners Chapel, Owode", type: "Church", area: "Owode", riders: 260, rides: 860, contact: "Pastor M. Thomas", status: "Active", code: "WINNERS-2026" },
   ];
   for (const p of partners) {
     const ref = doc(col("partners"));
@@ -326,4 +334,27 @@ export async function createNotification(data) {
 
 export async function markNotificationRead(notificationId) {
   await updateDoc(docRef("notifications", notificationId), { read: true });
+}
+
+export async function createInvoice(rideId, userId, amount, details = {}) {
+  const ref = doc(col("invoices"));
+  await setDoc(ref, {
+    rideId,
+    userId,
+    amount,
+    status: "pending",
+    details,
+    createdAt: serverTimestamp(),
+  });
+  return { id: ref.id };
+}
+
+export async function getInvoicesForUser(uid) {
+  const q = query(col("invoices"), where("userId", "==", uid), orderBy("createdAt", "desc"));
+  const snap = await getDocs(q);
+  return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+}
+
+export async function updateInvoiceStatus(invoiceId, status) {
+  await updateDoc(docRef("invoices", invoiceId), { status, updatedAt: serverTimestamp() });
 }

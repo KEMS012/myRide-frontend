@@ -13,9 +13,10 @@ const ROLE_ROUTE = {
 
 function Login() {
   const navigate = useNavigate();
-  const { login, googleSignIn } = useAuth();
+  const { login, googleSignIn, logout } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [partnerCode, setPartnerCode] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
@@ -26,6 +27,15 @@ function Login() {
     setBusy(true);
     try {
       const role = await login(email, password);
+      if (role === "partners") {
+        const { getPartners } = await import("../services/firestore");
+        const partners = await getPartners();
+        const match = partners.find((p) => p.code === partnerCode.trim() || p.name === partnerCode.trim());
+        if (!match) {
+          await logout();
+          throw new Error("Invalid partner code. Please contact your organization.");
+        }
+      }
       navigate(ROLE_ROUTE[role] || "/rider");
     } catch (err) {
       setError(friendlyError(err));
@@ -82,6 +92,14 @@ function Login() {
               {showPassword ? <FaEyeSlash /> : <FaEye />}
             </button>
           </div>
+
+          <input
+            type="text"
+            placeholder="Partner Code (if applicable)"
+            value={partnerCode}
+            onChange={(e) => setPartnerCode(e.target.value)}
+            style={{ marginBottom: "12px" }}
+          />
 
           {error && <p className="auth-error">{error}</p>}
 

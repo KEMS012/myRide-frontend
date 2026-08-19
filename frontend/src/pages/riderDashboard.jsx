@@ -54,13 +54,17 @@ import {
   col,
   acceptRide,
   completeRide,
+  getActiveRideForDriver,
   onRidesForUserSnapshot,
   onNotificationsSnapshot,
   createNotification,
+  createInvoice,
+  updateInvoiceStatus,
 } from "../services/firestore";
 import { generateGoogleCalendarUrl } from "../utils/calendar";
 import { getUserMessage } from "../utils/errors";
 import { getDynamicFare, estimateBikeFare } from "../utils/fares";
+import PaymentModal from "../components/PaymentModal";
 
 const navItems = [
   { id: "overview", label: "Dashboard", icon: <FaGaugeHigh /> },
@@ -93,6 +97,7 @@ function RiderDashboard() {
   const [dataError, setDataError] = useState("");
   const [toast, setToast] = useState("");
   const [confirm, setConfirm] = useState(null);
+  const [pendingPayment, setPendingPayment] = useState(null);
   const [notifications, setNotifications] = useState([]);
   const [unreadNotifCount, setUnreadNotifCount] = useState(0);
   const [emergencyContacts, setEmergencyContacts] = useState([
@@ -374,23 +379,27 @@ function RiderDashboard() {
           type: rideType,
           riderName: profile?.name,
           rideFare: `₦${fare.toLocaleString()}`,
+          paymentStatus: "pending",
+          amount: fare,
         });
         const drivers = await getDrivers();
+        let nearestDriver = null;
         if (drivers.length > 0) {
           const nearest = drivers[0];
-          await acceptRide(ride.id, nearest.id, nearest.name);
-          await createNotification({
-            recipientId: nearest.id,
-            recipientRole: "driver",
-            bookingId: ride.id,
-            title: "New Ride Booking",
-            message: `${profile?.name || "A passenger"} has booked a ride from ${pickup} to ${destination}.`,
-            type: "new_booking",
-          });
-          showToast(`Ride requested from ${pickup} to ${destination}. Driver ${nearest.name} assigned.`);
-        } else {
-          showToast(`Ride requested from ${pickup} to ${destination}. Waiting for a driver response.`);
+          const activeRides = await getActiveRideForDriver(nearest.id);
+          if (activeRides.length === 0) {
+            nearestDriver = nearest;
+          }
         }
+        const invoice = await createInvoice(ride.id, user.uid, fare, {
+          type: rideType,
+          from: pickup,
+          to: destination,
+          driverId: nearestDriver?.id || null,
+          driverName: nearestDriver?.name || null,
+        });
+        setPendingPayment({ ride, invoice, fare, driverId: nearestDriver?.id, driverName: nearestDriver?.name });
+        showToast("Ride booked! Complete payment to confirm your booking.");
       } else {
         const dt = scheduledDatetime || new Date().toISOString();
         await createSchedule({ userId: user.uid, from: pickup, to: destination, datetime: dt, type: rideType });
@@ -404,6 +413,30 @@ function RiderDashboard() {
       });
     } catch (err) {
       showToast(err.message || "Booking failed.");
+    }
+  };
+
+  const handlePaymentSuccess = async (reference) => {
+    if (!pendingPayment) return;
+    try {
+      const { ride, invoice, driverId, driverName } = pendingPayment;
+      if (driverId) {
+        await acceptRide(ride.id, driverId, driverName);
+        await createNotification({
+          recipientId: driverId,
+          recipientRole: "driver",
+          bookingId: ride.id,
+          title: "New Ride Booking",
+          message: `${profile?.name || "A passenger"} has booked a ride from ${ride.from} to ${ride.to}.`,
+          type: "new_booking",
+        });
+        showToast(`Ride confirmed from ${ride.from} to ${ride.to}. Driver ${driverName} assigned.`);
+      }
+      await updateInvoiceStatus(invoice.id, "paid");
+      showToast("Payment successful! Your ride is confirmed.");
+      setPendingPayment(null);
+    } catch (err) {
+      showToast(err.message || "Payment confirmation failed.");
     }
   };
 
@@ -1404,6 +1437,23 @@ function RiderDashboard() {
           </div>
         </div>
       )}
+
+      <PaymentModal
+        open={!!pendingPayment}
+        onClose={() => setPendingPayment(null)}
+        onSuccess={handlePaymentSuccess}
+        rideDetails={
+          pendingPayment
+            ? {
+                email: profile?.email || user?.email || "rider@myryde.app",
+                amount: pendingPayment.fare || 1200,
+                type: pendingPayment.ride?.type || "Standard Ride",
+                from: pendingPayment.ride?.from || "—",
+                to: pendingPayment.ride?.to || "—",
+              }
+            : null
+        }
+      />
     </div>
   );
 }

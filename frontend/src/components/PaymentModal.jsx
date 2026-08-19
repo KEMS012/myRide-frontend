@@ -51,7 +51,12 @@ export default function PaymentModal({ open, onClose, onSuccess, rideDetails }) 
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: "420px" }}>
+      {import.meta.env.VITE_PAYSTACK_TEST_MODE === "true" && (
+        <div style={{ position: "fixed", top: 0, left: 0, right: 0, background: "#f59e0b", color: "#fff", padding: "10px 16px", textAlign: "center", fontWeight: 600, zIndex: 9999, fontSize: "0.9rem" }}>
+          TEST MODE — No real payment will be processed
+        </div>
+      )}
+      <div className="modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: "420px", marginTop: import.meta.env.VITE_PAYSTACK_TEST_MODE === "true" ? "36px" : "0" }}>
         <button className="modal-close" onClick={onClose}><FaXmark /></button>
         <div className="modal-icon" style={{ marginBottom: "12px" }}><FaLock /></div>
         <h2>Confirm Payment</h2>

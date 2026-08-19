@@ -78,6 +78,10 @@ router.put("/:id/status", authenticateToken, asyncHandler(async (req, res) => {
 router.post("/:id/accept", authenticateToken, asyncHandler(async (req, res) => {
   try {
     const { driverId, driverName } = req.body;
+    const activeRides = await admin.firestore().collection("rides").where("driverId", "==", driverId).where("status", "in", ["requested", "accepted"]).get();
+    if (!activeRides.empty) {
+      return res.status(409).json({ error: "Driver is already assigned to another active ride." });
+    }
     await admin.firestore().collection("rides").doc(req.params.id).update({
       status: "accepted",
       driverId,
