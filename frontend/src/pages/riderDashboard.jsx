@@ -60,6 +60,9 @@ import {
   createNotification,
   createInvoice,
   updateInvoiceStatus,
+  getDocs,
+  query,
+  where,
 } from "../services/firestore";
 import { generateGoogleCalendarUrl } from "../utils/calendar";
 import { getUserMessage } from "../utils/errors";
@@ -124,52 +127,66 @@ function RiderDashboard() {
     useEffect(() => {
       if (!user) return;
       let active = true;
+      let unsubRides, unsubNotifs;
+
       async function load() {
         try {
           setDataError("");
-      const unsubRides = onRidesForUserSnapshot(user.uid, (items) => {
-        if (active) setAllTrips(items);
-      }, (err) => {
-        if (active) {
-          setDataError("Unable to load your trips. Please check your internet connection or contact support if this persists.");
-        }
-      });
-     const unsubNotifs = onNotificationsSnapshot(user.uid, (items) => {
-       if (active) {
-         setNotifications(items);
-         setUnreadNotifCount(items.filter((n) => !n.read).length);
-       }
-     });
-     const [schedules, reward, fixed] = await Promise.all([
-       getSchedulesForUser(user.uid),
-       getReward(user.uid),
-       getFixedRidesForUser(user.uid),
-     ]);
-     if (active) {
-       setUpcoming(schedules);
-       setRewards(reward);
-       setFixedList(fixed);
-     }
-     return () => {
-       unsubRides?.();
-       unsubNotifs?.();
-     };
-        } catch (err) {
-           console.error("Passenger dashboard load error:", err);
-          const msg = err?.message || "Failed to load dashboard data.";
-          if (msg.toLowerCase().includes("permission")) {
-            setDataError("Permission denied while loading rides or schedules. Please sign out and sign in again. If this persists, check Firestore rules.");
-          } else {
-            setDataError(msg);
+
+          unsubRides = onRidesForUserSnapshot(user.uid, (items) => {
+            if (active) setAllTrips(items);
+          }, async (err) => {
+            if (!active) return;
+            console.error("Real-time rides listener failed, falling back to one-time fetch:", err);
+            try {
+              const fallback = await getDocs(query(col("rides"), where("userId", "==", user.uid)));
+              const items = fallback.docs.map((d) => ({ id: d.id, ...d.data() }));
+              items.sort((a, b) => (b.createdAt?.toMillis?.() || 0) - (a.createdAt?.toMillis?.() || 0));
+              if (active) setAllTrips(items);
+            } catch (fallbackErr) {
+              console.error("Fallback rides fetch failed:", fallbackErr);
+              setDataError(getUserMessage(fallbackErr, "Unable to load your trips. Please check your internet connection or contact support if this persists."));
+            }
+          });
+
+          unsubNotifs = onNotificationsSnapshot(user.uid, (items) => {
+            if (active) {
+              setNotifications(items);
+              setUnreadNotifCount(items.filter((n) => !n.read).length);
+            }
+          }, (err) => {
+            if (active) {
+              setDataError(getUserMessage(err, "Unable to load notifications. Please check your connection."));
+            }
+          });
+
+          const [schedules, reward, fixed] = await Promise.all([
+            getSchedulesForUser(user.uid),
+            getReward(user.uid),
+            getFixedRidesForUser(user.uid),
+          ]);
+          if (active) {
+            setUpcoming(schedules);
+            setRewards(reward);
+            setFixedList(fixed);
           }
+
+          return () => {
+            unsubRides?.();
+            unsubNotifs?.();
+          };
+        } catch (err) {
+          console.error("Passenger dashboard load error:", err);
+          setDataError(getUserMessage(err, "Failed to load dashboard data. Please try again."));
         }
-     }
-     const cleanup = load();
-     return () => {
-       active = false;
-       cleanup.then((unsub) => unsub?.());
-     };
-   }, [user]);
+      }
+
+      const cleanup = load();
+      return () => {
+        active = false;
+        cleanup.then((unsub) => unsub?.());
+      };
+    }, [user]);
 
   const [pickup, setPickup] = useState("");
   const [destination, setDestination] = useState("");
