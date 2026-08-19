@@ -89,6 +89,7 @@ function AdminDashboard() {
   const [editTarget, setEditTarget] = useState(null);
   const [viewDriver, setViewDriver] = useState(null);
   const [viewUser, setViewUser] = useState(null);
+  const [viewPartner, setViewPartner] = useState(null);
   const [revealKyc, setRevealKyc] = useState(false);
   const [avatar, setAvatar] = useState(
     authProfile?.avatar || "https://randomuser.me/api/portraits/men/15.jpg"
@@ -760,7 +761,7 @@ function AdminDashboard() {
                     <span>{p.area}</span>
                     <span><em className={`status ${statusClass(p.status)}`}>{p.status}</em></span>
                     <span className="row-actions">
-                      <button className="ghost-btn" onClick={() => showToast(`Viewing ${p.name}.`)}><FaEye /></button>
+                      <button className="ghost-btn" onClick={() => setViewPartner(p)}><FaEye /></button>
                       <button className="ghost-btn danger" onClick={() => removeItem(partners, setPartners, p.id, "Partner")}><FaTrash /></button>
                     </span>
                   </div>
@@ -828,7 +829,7 @@ function AdminDashboard() {
                     <span>{v.area}</span>
                     <span><em className={`status ${statusClass(v.status)}`}>{v.status}</em></span>
                     <span className="row-actions">
-                      <button className="ghost-btn" onClick={() => showToast(`Reviewing ${v.name}.`)}><FaEye /></button>
+                      <button className="ghost-btn" onClick={() => setViewDriver(v)}><FaEye /></button>
                       {normalizeStatus(v.status) === "Pending" ? (
                         <button className="ghost-btn" onClick={() => verify(v.id)}><FaCheck /> Verify</button>
                       ) : (
@@ -1244,6 +1245,48 @@ function AdminDashboard() {
                 <FaPen /> Edit
               </button>
               <button className="ghost-btn" onClick={() => setViewUser(null)}>Close</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {viewPartner && (
+        <div className="modal-overlay" onClick={() => setViewPartner(null)}>
+          <div className="modal wide" onClick={(e) => e.stopPropagation()}>
+            <button className="modal-close" onClick={() => setViewPartner(null)}><FaXmark /></button>
+            <div className="modal-icon"><FaHandshake /></div>
+            <h2>{viewPartner.name}</h2>
+            <p className="muted">{viewPartner.type} · {viewPartner.area}</p>
+
+            <div className="kyc-grid">
+              <div className="kyc-field">
+                <small>Type</small>
+                <span>{viewPartner.type || "—"}</span>
+              </div>
+              <div className="kyc-field">
+                <small>Area</small>
+                <span>{viewPartner.area || "—"}</span>
+              </div>
+              <div className="kyc-field">
+                <small>Status</small>
+                <span className={`status ${statusClass(viewPartner.status)}`}>{viewPartner.status}</span>
+              </div>
+              <div className="kyc-field">
+                <small>Riders</small>
+                <span>{viewPartner.riders || "—"}</span>
+              </div>
+              <div className="kyc-field">
+                <small>Rides</small>
+                <span>{viewPartner.rides || "—"}</span>
+              </div>
+              <div className="kyc-field">
+                <small>Contact</small>
+                <span>{viewPartner.contact || "—"}</span>
+              </div>
+            </div>
+
+            <div className="modal-actions">
+              <button className="ghost-btn" onClick={() => setViewPartner(null)}>Close</button>
             </div>
           </div>
         </div>
