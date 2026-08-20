@@ -457,7 +457,9 @@ function RiderDashboard() {
         await updateDoc(docRef("rides", ride.id), { status: "requested" });
         showToast("Payment successful! Looking for a driver.");
       }
-      await updateInvoiceStatus(invoice.id, "paid");
+      if (invoice) {
+        await updateInvoiceStatus(invoice.id, "paid");
+      }
       setPendingPayment(null);
     } catch (err) {
       showToast(getUserMessage(err, "Payment confirmation failed. Please try again or contact support."));
@@ -959,13 +961,14 @@ function RiderDashboard() {
                 </div>
               </div>
 
-              <div className="trips-table">
+                <div className="trips-table">
                 <div className="trips-table-head">
                   <span>Trip ID</span>
                   <span>Route</span>
                   <span>Date</span>
                   <span>Fare</span>
                   <span>Status</span>
+                  <span>Actions</span>
                 </div>
 
                 {filteredTrips.length === 0 && (
@@ -987,6 +990,21 @@ function RiderDashboard() {
                           {t.status === "pending_payment" ? "Awaiting Payment" : t.status}
                         </em>
                       </span>
+                    <span>
+                      {t.status === "pending_payment" && (
+                        <button
+                          className="qb-btn small"
+                          onClick={() =>
+                            setPendingPayment({
+                              ride: t,
+                              fare: Number(t.amount || t.rideFare?.replace(/[^\d]/g, "") || 0),
+                            })
+                          }
+                        >
+                          Pay Now
+                        </button>
+                      )}
+                    </span>
                   </div>
                 ))}
               </div>
