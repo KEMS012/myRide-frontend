@@ -816,23 +816,6 @@ function RiderDashboard() {
                       View Rewards
                     </button>
                   </div>
-
-                  <div className="panel fixed-panel">
-                    <div className="avatar-placeholder" />
-                    <div className="fixed-info">
-                      <strong>Musa A.</strong>
-                      <small><FaStar /> 4.9 · Your Fixed Passenger</small>
-                    </div>
-                    <button
-                      className="qb-btn small"
-                      onClick={() => {
-                        goTo("book");
-                        showToast("Booking with Your Fixed Passenger, Musa A.");
-                      }}
-                    >
-                      Book
-                    </button>
-                  </div>
                 </div>
               </section>
             </>
