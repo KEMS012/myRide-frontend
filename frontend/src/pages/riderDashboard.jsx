@@ -61,9 +61,8 @@ import {
   createInvoice,
   updateInvoiceStatus,
   getDocs,
-  query,
-  where,
 } from "../services/firestore";
+import { query, where } from "firebase/firestore";
 import { generateGoogleCalendarUrl } from "../utils/calendar";
 import { getUserMessage } from "../utils/errors";
 import { getDynamicFare, estimateBikeFare } from "../utils/fares";
