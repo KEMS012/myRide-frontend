@@ -212,6 +212,8 @@ function RiderDashboard() {
     setConfirm(null);
   };
 
+  
+
   const handleLocationToggle = async () => {
     if (!locationSharing) {
       if (!navigator.geolocation) {
