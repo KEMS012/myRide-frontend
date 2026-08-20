@@ -460,7 +460,7 @@ function RiderDashboard() {
       await updateInvoiceStatus(invoice.id, "paid");
       setPendingPayment(null);
     } catch (err) {
-      showToast(err.message || "Payment confirmation failed.");
+      showToast(getUserMessage(err, "Payment confirmation failed. Please try again or contact support."));
     }
   };
 

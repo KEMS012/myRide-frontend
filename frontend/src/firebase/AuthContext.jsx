@@ -77,7 +77,7 @@ export function AuthProvider({ children }) {
       return role;
     } catch (err) {
       console.error("Signup error:", err);
-      throw new Error(err.message || "Sign up failed. Please try again.");
+      throw new Error("Sign up failed. Please try again.");
     }
   }
 
@@ -103,7 +103,7 @@ export function AuthProvider({ children }) {
       return data.role;
     } catch (err) {
       console.error("Google sign-in error:", err);
-      throw new Error(err.message || "Google sign-in failed. Please try again.");
+      throw new Error("Google sign-in failed. Please try again.");
     }
   }
 
@@ -133,7 +133,7 @@ export function AuthProvider({ children }) {
       if (code.includes("permission-denied") || err.message?.includes("permissions")) {
         throw new Error("Database access denied. Please contact support.");
       }
-      throw new Error(err.message || "Login failed. Please try again.");
+      throw new Error("Login failed. Please try again.");
     }
   }
 
