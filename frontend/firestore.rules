@@ -3,10 +3,15 @@ service cloud.firestore {
   match /databases/{database}/documents {
     function isAuthed() { return request.auth != null; }
     function isUser(userId) { return isAuthed() && request.auth.uid == userId; }
-    function isAdmin() { return isAuthed() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin"; }
-    function isDriver() { return isAuthed() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "driver"; }
-    function isRider() { return isAuthed() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "rider"; }
-    function isPartner() { return isAuthed() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "partners"; }
+    function hasRole(role) {
+      return isAuthed() &&
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == role;
+    }
+    function isAdmin() { return hasRole("admin"); }
+    function isDriver() { return hasRole("driver"); }
+    function isRider() { return hasRole("rider"); }
+    function isPartner() { return hasRole("partners"); }
 
     match /users/{userId} {
       allow read: if isAuthed();
