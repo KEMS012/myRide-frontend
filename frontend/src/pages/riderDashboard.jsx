@@ -134,7 +134,10 @@ function RiderDashboard() {
           setDataError("");
 
           unsubRides = onRidesForUserSnapshot(user.uid, (items) => {
-            if (active) setAllTrips(items);
+            if (active) {
+              setAllTrips(items);
+              setDataError("");
+            }
           }, async (err) => {
             if (!active) return;
             console.error("Real-time rides listener failed, falling back to one-time fetch:", err);
@@ -142,7 +145,10 @@ function RiderDashboard() {
               const fallback = await getDocs(query(col("rides"), where("userId", "==", user.uid)));
               const items = fallback.docs.map((d) => ({ id: d.id, ...d.data() }));
               items.sort((a, b) => (b.createdAt?.toMillis?.() || 0) - (a.createdAt?.toMillis?.() || 0));
-              if (active) setAllTrips(items);
+              if (active) {
+                setAllTrips(items);
+                setDataError("");
+              }
             } catch (fallbackErr) {
               console.error("Fallback rides fetch failed:", fallbackErr);
               setDataError(getUserMessage(fallbackErr, "Unable to load your trips. Please check your internet connection or contact support if this persists."));
@@ -156,7 +162,7 @@ function RiderDashboard() {
             }
           }, (err) => {
             if (active) {
-              setDataError(getUserMessage(err, "Unable to load notifications. Please check your connection."));
+              console.error("Notifications listener failed:", err);
             }
           });
 
