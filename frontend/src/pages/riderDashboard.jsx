@@ -111,7 +111,9 @@ function RiderDashboard() {
   const [supportSubject, setSupportSubject] = useState("");
   const [supportMessage, setSupportMessage] = useState("");
   const [supportSent, setSupportSent] = useState(false);
-  const [avatar, setAvatar] = useState(profile?.avatar || null);
+  const [avatar, setAvatar] = useState(
+    profile?.avatar || "https://randomuser.me/api/portraits/men/45.jpg"
+  );
   const [profileForm, setProfileForm] = useState(() => ({
     name: profile?.name || user?.displayName || "",
     phone: profile?.phone || user?.phoneNumber || "",
@@ -643,7 +645,10 @@ function RiderDashboard() {
             </div>
 
             <div className="topbar-user" onClick={() => goTo("profile")}>
-              {avatar && <img src={avatar} alt="User" />}
+              <img
+                src={avatar}
+                alt="User"
+              />
               <div className="user-info">
                 <strong>{profile?.name?.split(" ")[0] || "User"}</strong>
                   <small>{profile?.role === "driver" ? "Driver" : profile?.role === "partners" ? "Partner" : profile?.role === "admin" ? "Admin" : "Passenger"}</small>
@@ -814,6 +819,26 @@ function RiderDashboard() {
                       onClick={() => goTo("rewards")}
                     >
                       View Rewards
+                    </button>
+                  </div>
+
+                  <div className="panel fixed-panel">
+                    <img
+                      src="https://randomuser.me/api/portraits/men/32.jpg"
+                      alt="Driver"
+                    />
+                    <div className="fixed-info">
+                      <strong>Musa A.</strong>
+                      <small><FaStar /> 4.9 · Your Fixed Passenger</small>
+                    </div>
+                    <button
+                      className="qb-btn small"
+                      onClick={() => {
+                        goTo("book");
+                        showToast("Booking with Your Fixed Passenger, Musa A.");
+                      }}
+                    >
+                      Book
                     </button>
                   </div>
                 </div>
@@ -1029,7 +1054,7 @@ function RiderDashboard() {
                   {filteredDrivers.length === 0 && <p className="empty-note">No verified drivers match that area yet.</p>}
                   {filteredDrivers.map((d) => (
                     <div className="driver-card" key={d.id}>
-                      {d.avatar ? <img src={d.avatar} alt={d.name} /> : null}
+                      <img src={d.avatar || "https://randomuser.me/api/portraits/men/32.jpg"} alt={d.name} />
                       <div>
                         <strong>{d.name}</strong>
                         <small>{d.town || "Ogbomoso"} · ⭐ {d.rating || "4.5"}</small>
@@ -1129,7 +1154,7 @@ function RiderDashboard() {
               <div className="panel">
                 <div className="profile-head">
                   <div className="avatar-upload">
-                    {avatar ? <img src={avatar} alt="User" /> : <div className="avatar-placeholder" />}
+                    <img src={avatar} alt="User" />
                     <button
                       type="button"
                       className="avatar-edit"
@@ -1269,12 +1294,15 @@ function RiderDashboard() {
                    <p className="empty-note">No drivers are currently available in your area.</p>
                  )}
                  <div className="driver-grid">
-                    {filteredDrivers.map((driver) => (
-                      <div className="driver-card" key={driver.id}>
-                        {driver.avatar ? <img src={driver.avatar} alt={driver.name} /> : null}
-                        <div className="driver-card-info">
-                          <strong>{driver.name}</strong>
-                          <small>
+                   {filteredDrivers.map((driver) => (
+                     <div className="driver-card" key={driver.id}>
+                       <img
+                         src={driver.avatar || "https://randomuser.me/api/portraits/men/32.jpg"}
+                         alt={driver.name}
+                       />
+                       <div className="driver-card-info">
+                         <strong>{driver.name}</strong>
+                         <small>
                            <FaLocationDot /> {driver.area || driver.town || "Ogbomoso"}
                          </small>
                          <small>
