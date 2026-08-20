@@ -67,9 +67,7 @@ function PartnerDashboard() {
   const [toast, setToast] = useState("");
   const [confirm, setConfirm] = useState(null);
   const [selected, setSelected] = useState(null);
-  const [avatar, setAvatar] = useState(
-    profile?.avatar || ""
-  );
+  const [avatar, setAvatar] = useState(profile?.avatar || null);
   const [profileForm, setProfileForm] = useState({
     name: profile?.name || user?.displayName || "",
     email: profile?.email || user?.email || "",
@@ -98,7 +96,7 @@ function PartnerDashboard() {
       phone: profile?.phone || user?.phoneNumber || prev.phone || "",
       organization: profile?.organization || prev.organization || "",
     }));
-    setAvatar(profile?.avatar || user?.photoURL || "https://randomuser.me/api/portraits/women/68.jpg");
+    setAvatar(profile?.avatar || user?.photoURL || null);
   }, [profile, user]);
 
   const showToast = (msg) => {
@@ -248,7 +246,7 @@ function PartnerDashboard() {
             </div>
 
             <div className="topbar-user" onClick={() => goTo("profile")}>
-              <img src={avatar} alt="User" />
+              {avatar ? <img src={avatar} alt="User" /> : <div className="avatar-placeholder" />}
               <div className="user-info">
                 <strong>{profile?.name?.split(" ")[0] || "Partner"}</strong>
                 <small>Partnerships</small>
@@ -480,7 +478,7 @@ function PartnerDashboard() {
               <div className="panel">
                 <div className="profile-head">
                   <div className="avatar-upload">
-                    <img src={avatar} alt="User" />
+                    {avatar ? <img src={avatar} alt="User" /> : <div className="avatar-placeholder" />}
                     <button type="button" className="avatar-edit" onClick={() => fileInputRef.current?.click()} title="Change photo">
                       <FaPen />
                     </button>

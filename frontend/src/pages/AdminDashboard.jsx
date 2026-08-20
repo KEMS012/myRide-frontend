@@ -91,9 +91,7 @@ function AdminDashboard() {
   const [viewUser, setViewUser] = useState(null);
   const [viewPartner, setViewPartner] = useState(null);
   const [revealKyc, setRevealKyc] = useState(false);
-  const [avatar, setAvatar] = useState(
-    authProfile?.avatar || "https://randomuser.me/api/portraits/men/15.jpg"
-  );
+  const [avatar, setAvatar] = useState(authProfile?.avatar || null);
   const [loadingData, setLoadingData] = useState(true);
   const [loadError, setLoadError] = useState("");
   const [refreshing, setRefreshing] = useState(false);
@@ -553,7 +551,7 @@ function AdminDashboard() {
             </div>
 
             <div className="topbar-user" onClick={() => goTo("settings")}>
-              <img src={avatar} alt="User" />
+              {avatar ? <img src={avatar} alt="User" /> : <div className="avatar-placeholder" />}
               <div className="user-info">
                 <strong>{authProfile?.name?.split(" ")[0] || "Admin"}</strong>
                 <small>Super Admin</small>
@@ -874,7 +872,7 @@ function AdminDashboard() {
               <div className="panel">
                 <div className="profile-head">
                   <div className="avatar-upload">
-                    <img src={avatar} alt="User" />
+                    {avatar ? <img src={avatar} alt="User" /> : <div className="avatar-placeholder" />}
                     <button type="button" className="avatar-edit" onClick={() => fileInputRef.current?.click()} title="Change photo">
                       <FaPen />
                     </button>

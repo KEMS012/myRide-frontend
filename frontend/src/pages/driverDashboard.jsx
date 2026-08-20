@@ -72,9 +72,7 @@ function DriverDashboard() {
   const [confirm, setConfirm] = useState(null);
   const [notifications, setNotifications] = useState([]);
   const [unreadNotifCount, setUnreadNotifCount] = useState(0);
-  const [avatar, setAvatar] = useState(
-    profile?.avatar || "https://randomuser.me/api/portraits/men/32.jpg"
-  );
+  const [avatar, setAvatar] = useState(profile?.avatar || null);
   const [profileForm, setProfileForm] = useState(() => ({
     name: profile?.name || user?.displayName || "",
     phone: profile?.phone || user?.phoneNumber || "",
@@ -124,7 +122,7 @@ function DriverDashboard() {
       license: profile?.license || prev.license || "",
       plateNumber: profile?.plateNumber || prev.plateNumber || "",
     }));
-    setAvatar(profile?.avatar || user?.photoURL || "https://randomuser.me/api/portraits/men/32.jpg");
+    setAvatar(profile?.avatar || user?.photoURL || null);
   }, [profile, user]);
 
   const showToast = (msg) => {
@@ -293,7 +291,7 @@ function DriverDashboard() {
             </div>
 
             <div className="topbar-user" onClick={() => goTo("profile")}>
-              <img src={avatar} alt="User" />
+              {avatar ? <img src={avatar} alt="User" /> : <div className="avatar-placeholder" />}
               <div className="user-info">
                 <strong>{profile?.name?.split(" ")[0] || "Driver"}</strong>
                 <small>{profile?.role === "admin" ? "Admin" : "Driver"}</small>
@@ -564,7 +562,7 @@ function DriverDashboard() {
               <div className="panel">
                 <div className="profile-head">
                   <div className="avatar-upload">
-                    <img src={avatar} alt="User" />
+                    {avatar ? <img src={avatar} alt="User" /> : <div className="avatar-placeholder" />}
                     <button
                       type="button"
                       className="avatar-edit"
