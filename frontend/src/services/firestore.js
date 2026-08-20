@@ -42,9 +42,11 @@ export function onRidesSnapshot(listener) {
 }
 
 export function onRidesForUserSnapshot(uid, listener, onError) {
-  const q = query(col("rides"), where("userId", "==", uid), orderBy("createdAt", "desc"));
+  const q = query(col("rides"), where("userId", "==", uid));
   const unsub = onSnapshot(q, (snap) => {
-    listener(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
+    const items = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+    items.sort((a, b) => (b.createdAt?.toMillis?.() || 0) - (a.createdAt?.toMillis?.() || 0));
+    listener(items);
   }, (err) => {
     console.error("onRidesForUserSnapshot error:", err);
     onError?.(err);
@@ -318,12 +320,15 @@ export async function seedInitialData() {
   }
 }
 
-export function onNotificationsSnapshot(uid, listener) {
-  const q = query(col("notifications"), where("recipientId", "==", uid), orderBy("createdAt", "desc"));
+export function onNotificationsSnapshot(uid, listener, onError) {
+  const q = query(col("notifications"), where("recipientId", "==", uid));
   const unsub = onSnapshot(q, (snap) => {
-    listener(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
+    const items = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+    items.sort((a, b) => (b.createdAt?.toMillis?.() || 0) - (a.createdAt?.toMillis?.() || 0));
+    listener(items);
   }, (err) => {
     console.error("onNotificationsSnapshot error:", err);
+    onError?.(err);
     listener([]);
   });
   return unsub;
